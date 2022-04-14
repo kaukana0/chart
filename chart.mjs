@@ -1,6 +1,4 @@
 /**
- * processors : [extractCountryValues, extractCountries]
- * chart.init(data["bySiec"]["TOTAL"].cols, Object.keys(data.countries))
  */
 
 let chart
@@ -25,16 +23,14 @@ export function init(type, cols, categories) {
           }
         },
         bindto: "#chart",
-        tooltip:{show:false},
-        hide:["DE"]
+        tooltip:{show:true}
       });
-      //chart.hide();
-      //chart.show(data.getDataSeriesShown());
     }  
 }
  
 export function update(cols) {
 	chart.load({
+    unload: true, // TODO - use the diff to make it
 		columns: cols
 	})
 }
