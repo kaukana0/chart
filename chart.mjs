@@ -23,7 +23,18 @@ export function init(type, cols, categories) {
           }
         },
         bindto: "#chart",
-        tooltip:{show:true}
+        tooltip:{show:true},
+        legend: {
+          position: "right",
+          contents: {
+            bindto: "#legend",
+            template: function(title, color) {
+              return `<span style='background-color: ${color}; padding:10px; margin-right:5px;'>
+              ${title}
+              </span>`
+            }
+          }
+        },
       });
     }  
 }
