@@ -5,42 +5,54 @@ export let chart
 let isInitialized = false
 
 
-function legend() {
-  return {
-    position: "right",
-    contents: {
-      bindto: "#legend",
-      template: function(title, color) {
-        //return `<div id="chartLegend" style='${style(color)}'>${title}</div>`
-        return `<div id="chartLegend">${title}</div>` //${style(color)}
-      }
-    }
-  }
+function legend(legendCSSSelector) {
 
-  function style(color) {
+  function style() {
     return `
     <style>
 
-    /* < bootstrap xs */
-    @media (max-width: 576px) {
+    /* > bootstrap xs  supposed to be on the right */
+    @media screen and (min-width: 576px) {
       #chartLegend {
-        border-top: 10px solid ${color};
-        padding-top:10px; padding-bottom:10px; 
-        padding-left:10px; margin-top:5px;
+        display: block;
+        border-left: 25px solid;
+        padding-top: 0.7em; 
+        padding-bottom: 0.7em; 
+        padding-left: 10px; 
+        margin-top:5px;
       }
     }
 
-    /* > bootstrap xs */
-    @media screen and (min-width: 576px) {
+    /* < bootstrap xs   supposed to be below */
+    @media (max-width: 576px) {
       #chartLegend {
-        border-left: 20px solid ${color}; 
-        padding-top:10px; padding-bottom:10px; 
-        padding-left:10px; margin-top:5px;
+        display: inline-block;
+        margin-top: 20px;
+        border-top: 8px solid;
+        padding-top: 5px;
+        padding-left: 10px; 
+        padding-right: 10px; 
+        margin-left: 10px;
+        margin-right: 10px;
       }
     }
+
     </style>
     `
   }
+
+  document.head.insertAdjacentHTML("beforeend", style())
+
+  return {
+    position: "right",
+    contents: {
+      bindto: legendCSSSelector,
+      template: function(title, color) {
+        return `<span id="chartLegend" style="border-color: ${color};">${title}</span>`
+      }
+    }
+  }
+
 }
 
 function grid() {
@@ -61,14 +73,14 @@ function axis(categories) {
   }
 }
 
-export function init(type, cols, categories) {
+export function init(type, chartCSSSelector, legendCSSSelector, cols, categories) {
     if(isInitialized) {
       update(cols)
     } else {
       isInitialized = true
       
       chart = bb.generate({
-        bindto: "#chart",
+        bindto: chartCSSSelector,
         data: {
           columns: cols,
           type: type,
@@ -76,14 +88,14 @@ export function init(type, cols, categories) {
         grid: grid(),
         axis: axis(categories),
         tooltip:{show:true},
-        legend: legend()
+        legend: legend(legendCSSSelector)
       });
     }  
 }
  
 export function update(cols) {
 	chart.load({
-    unload: true, // TODO - use the diff to make it
+    unload: true, // TODO - use the diff to make smooth transition
 		columns: cols
 	})
 }
