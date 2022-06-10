@@ -2,7 +2,9 @@
  */
 
 export let chart
+let unitText  // maybe put in some kind of closure?
 let isInitialized = false
+let legendCurrentSelection
 
 
 function legend(legendCSSSelector) {
@@ -11,7 +13,7 @@ function legend(legendCSSSelector) {
     return `
     <style>
 
-    /* > bootstrap xs  supposed to be on the right */
+    /* > bootstrap xs  legend is supposed to be on the right of chart */
     @media screen and (min-width: 576px) {
       #chartLegend {
         display: block;
@@ -23,7 +25,7 @@ function legend(legendCSSSelector) {
       }
     }
 
-    /* < bootstrap xs   supposed to be below */
+    /* < bootstrap xs   legend is supposed to be below chart */
     @media (max-width: 576px) {
       #chartLegend {
         display: inline-block;
@@ -37,6 +39,10 @@ function legend(legendCSSSelector) {
       }
     }
 
+    .bb-tooltip th {
+      background: black;
+    }
+  
     </style>
     `
   }
@@ -50,6 +56,27 @@ function legend(legendCSSSelector) {
       template: function(title, color) {
         return `<span id="chartLegend" style="border-color: ${color};">${title}</span>`
       }
+    },
+    item: {
+      // the one clicked stays as is, while all others fade out a little bit
+      onclick: function(id) { 
+        if(legendCurrentSelection) {
+          if(id==legendCurrentSelection) {
+            legendCurrentSelection = null
+            chart.focus()
+          } else {
+            legendCurrentSelection = id
+            chart.defocus()
+            window.requestAnimationFrame(() => chart.focus(id) )
+          }
+        } else {
+          legendCurrentSelection = id
+          chart.defocus()
+          window.requestAnimationFrame(() => chart.focus(id) )
+        }
+       },
+       onover: function(id) {},
+       onout: function(id) {},
     }
   }
 
@@ -68,17 +95,27 @@ function axis(categories) {
   return {
     x: {
       type: "category",
-      categories: categories
+      categories: categories,
+      tick: {
+        centered: true,
+        outer: false,
+        multiline: false,
+        useFit: false,
+        culling: {
+          max: 1
+        }
+      }
     }
   }
 }
 
-export function init(type, chartCSSSelector, legendCSSSelector, cols, categories) {
+export function init(type, chartCSSSelector, legendCSSSelector, cols, bla, categories, unit) {
+    unitText = unit
     if(isInitialized) {
       update(cols)
     } else {
       isInitialized = true
-      
+
       chart = bb.generate({
         bindto: chartCSSSelector,
         data: {
@@ -87,10 +124,15 @@ export function init(type, chartCSSSelector, legendCSSSelector, cols, categories
         },
         grid: grid(),
         axis: axis(categories),
-        tooltip:{show:true},
+        tooltip: {show:true,
+        format: {
+          name: function(name, ratio, id, index) { return bla.get(id) },
+          value: function(value, ratio, id, index) { return value + unitText }
+        }
+        },
         legend: legend(legendCSSSelector)
       });
-    }  
+    }
 }
  
 export function update(cols) {
