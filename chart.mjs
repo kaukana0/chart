@@ -56,7 +56,7 @@ export function update(cols) {
 
 function toastHtml() {
 return `
-<div class="toast-container position-absolute top-50 start-50 translate-middle" style="z-index: 50;">
+<div class="toast-container position-absolute top-50 start-50 translate-middle" style="z-index: 50; background-color: #fff;">
   <div id="${uniquePrefix}toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="toast-header">
       <strong class="me-auto">Info</strong>
