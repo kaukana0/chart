@@ -48,9 +48,13 @@ export function init(type, chartCSSSelector, legendCSSSelector, cols, bla, categ
 export function update(cols) {
 	chart.load({
     unload: true, // TODO - use the diff to make smooth transition
-		columns: cols
+		columns: cols,
+    done: function() {displayMissingDataInLegend(cols)}
   })
-  window.requestAnimationFrame(e=>coloringForMissingData(cols))
+}
+
+export function setYLabel(text) {
+  chart.axis.labels({y: text})
 }
 
 
@@ -82,10 +86,10 @@ function legend(legendCSSSelector) {
       .${uniquePrefix} {
         display: block;
         border-left: 25px solid;
+        margin-top:5px;
         padding-top: 0.7em; 
         padding-bottom: 0.7em; 
         padding-left: 10px; 
-        margin-top:5px;
       }
     }
 
@@ -93,20 +97,19 @@ function legend(legendCSSSelector) {
     @media (max-width: 576px) {
       .${uniquePrefix} {
         display: inline-block;
-        margin-top: 20px;
-        border-top: 8px solid;
         padding-top: 5px;
         padding-left: 10px; 
         padding-right: 10px; 
+        margin-top: 20px;
         margin-left: 10px;
         margin-right: 10px;
+        border-top: 8px solid;
       }
     }
 
     .bb-tooltip th {
       background: black;
     }
-  
     </style>
     `
   }
@@ -118,7 +121,7 @@ function legend(legendCSSSelector) {
     contents: {
       bindto: legendCSSSelector,
       template: function(title, color) {
-        return `<span class="${uniquePrefix}" id="${uniquePrefix+title}" style="border-color: ${color}; ${dataMissing.includes(title)?"text-decoration: line-through;":""}">${title}</span>`
+        return `<span class="${uniquePrefix}" id="${uniquePrefix+title}" style="border-color: ${color};"> ${title} </span>`
       }
     },
     item: {
@@ -168,32 +171,35 @@ function axis(categories) {
         useFit: false,
         culling: {
           max: 1
-        }
+        },
+        //rotate: -45
+      }
+    },
+    y: {
+      label: {
+        text: "",   // see setYLabel()
+        position: "outer-middle"
       }
     }
   }
 }
 
 
-function coloringForMissingData(cols) {
-  dataMissing = []
+// grey out legend elements that have no data and show toast if there's not data at all.
+// cols is [["dataSeriesName",..values...], ["dataSeriesName",..values...]]
+function displayMissingDataInLegend(cols) {
+  let someDataExists = false
 
   cols.forEach(col => {
-    if(col.slice(1).every(el => el===null)) {
-      dataMissing.push(col[0])
+    const allValuesNull = col.slice(1).every(el => el===null)
+    if(allValuesNull) {
+        document.getElementById(uniquePrefix+col[0]).setAttribute("style","border-color: lightgrey; text-decoration: line-through;")
+    } else {
+      someDataExists = true
     }
   })
 
-  if(cols.length === dataMissing.length) {
+  if(!someDataExists) {
     toast.show()
   }
-
-  dataMissing.forEach(el => {
-    let o = {}
-    o[el] = "#999"
-    chart.data.colors(o)
-    // window.setTimeout( e => {
-    //   document.getElementById(uniquePrefix+el).setAttribute("style","text-decoration: line-through;")
-    // } , 500);    
-  })    
 }
