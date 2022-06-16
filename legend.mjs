@@ -1,0 +1,110 @@
+let legendCurrentSelection
+let focus
+let chart	//TODO: don't give the whole chart to this module, just a narrow interface
+
+export function setChart(chart_) {
+	chart = chart_
+}
+
+export function legend(legendCSSSelector, uniquePrefix) {
+	return {
+		position: "right",
+		contents: {
+			bindto: legendCSSSelector,
+			template: function (title, color) {
+				return `<span class="${uniquePrefix}" id="${uniquePrefix + title}" style="border-color: ${color};" tabindex=0> ${title} </span>`
+			}
+		},
+		item: {
+			// the one clicked stays as is, while all others fade out a little bit
+			onclick: function (id) {
+				if (legendCurrentSelection) {
+					if (id == legendCurrentSelection) {
+						legendCurrentSelection = null
+						chart.focus()
+					} else {
+						legendCurrentSelection = id
+						chart.defocus()
+						window.requestAnimationFrame(() => chart.focus(id))
+					}
+				} else {
+					legendCurrentSelection = id
+					chart.defocus()
+					window.requestAnimationFrame(() => chart.focus(id))
+				}
+			},
+			onover: function (id) { },
+			onout: function (id) { },
+		}
+	}
+}
+
+
+// grey out legend elements that have no data
+// cols is [["dataSeriesName",..values...], ["dataSeriesName",..values...]]
+// returns true if any data exists at all, false othewise
+export function displayMissingDataInLegend(cols, uniquePrefix) {
+	let someDataExists = false
+
+	cols.forEach(col => {
+		const allValuesNull = col.slice(1).every(el => el === null)
+		if (allValuesNull) {
+			document.getElementById(uniquePrefix + col[0]).setAttribute("style", "border-color: lightgrey; text-decoration: line-through;")
+		} else {
+			someDataExists = true
+		}
+	})
+
+    return someDataExists
+}
+
+
+export function addLegendKeyboardNavigability(legendCSSSelector) {
+	// all span children under the element with given selector
+	document.querySelector(legendCSSSelector).querySelectorAll("span")
+	.forEach( e => {e.addEventListener("keydown", ke => {
+			if(ke.keyCode==13) {
+				ke.target.click()
+			}
+		})
+	})
+}
+
+export function legendCSS(uniquePrefix) {
+    return `
+<style>
+
+/* > bootstrap xs  legend is supposed to be on the right of chart */
+@media screen and (min-width: 576px) {
+  .${uniquePrefix} {
+    display: block;
+    border-left: 25px solid;
+    margin-top:5px;
+    padding-top: 0.7em; 
+    padding-bottom: 0.7em; 
+    padding-left: 10px;
+    text-align: left;	/* left alignment when besides chart */
+  }
+}
+
+/* < bootstrap xs   legend is supposed to be below chart */
+@media (max-width: 576px) {
+  .${uniquePrefix} {
+    display: inline-block;
+    padding-top: 5px;
+    padding-left: 10px; 
+    padding-right: 10px; 
+    margin-top: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
+    border-top: 8px solid;
+    /* text-center class in hmtl centers vertically when below chart */
+  }
+}
+
+.bb-tooltip th {
+  background: black;
+}
+</style>
+`
+}
