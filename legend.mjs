@@ -1,9 +1,12 @@
-let legendCurrentSelection
-let focus
-let chart	//TODO: don't give the whole chart to this module, just a narrow interface
+let currentSelection
+let focusLegendElement		// a function
+let defocusLegendElement	// a function
 
-export function setChart(chart_) {
-	chart = chart_
+
+// narrow interface; legend doesn't need to know more of the chart that just this
+export function setFocusMethods(focus, defocus) {
+	focusLegendElement = focus
+	defocusLegendElement = defocus
 }
 
 export function legend(legendCSSSelector, uniquePrefix) {
@@ -18,19 +21,19 @@ export function legend(legendCSSSelector, uniquePrefix) {
 		item: {
 			// the one clicked stays as is, while all others fade out a little bit
 			onclick: function (id) {
-				if (legendCurrentSelection) {
-					if (id == legendCurrentSelection) {
-						legendCurrentSelection = null
-						chart.focus()
+				if (currentSelection) {
+					if (id == currentSelection) {
+						currentSelection = null
+						focusLegendElement()
 					} else {
-						legendCurrentSelection = id
-						chart.defocus()
-						window.requestAnimationFrame(() => chart.focus(id))
+						currentSelection = id
+						defocusLegendElement()
+						window.requestAnimationFrame(() => focusLegendElement(id))
 					}
 				} else {
-					legendCurrentSelection = id
-					chart.defocus()
-					window.requestAnimationFrame(() => chart.focus(id))
+					currentSelection = id
+					focusLegendElement()
+					window.requestAnimationFrame(() => focusLegendElement(id))
 				}
 			},
 			onover: function (id) { },

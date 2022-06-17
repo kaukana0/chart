@@ -1,9 +1,10 @@
-import {legend, displayMissingDataInLegend, addLegendKeyboardNavigability, legendCSS, setChart} from "./legend.mjs"
+import {legend, displayMissingDataInLegend, addLegendKeyboardNavigability, legendCSS, setFocusMethods} from "./legend.mjs"
 import toastHtml from "./toast.mjs"
 import {grid, axis} from "./rest.mjs"
 
 export let chart
 let isInitialized = false
+let currentCols = []
 let toast
 let uniquePrefix
 
@@ -14,6 +15,7 @@ export function init(type, chartCSSSelector, legendCSSSelector, cols, bla, categ
 		update(cols, legendCSSSelector)
 	} else {
 		isInitialized = true
+
 		// a crook because of light-DOM to avoid problems w/ multiple charts
 		uniquePrefix = "chartElement" + Math.floor(Math.random() * 10000)
 
@@ -39,15 +41,21 @@ export function init(type, chartCSSSelector, legendCSSSelector, cols, bla, categ
 			},
 			legend: legend(legendCSSSelector, uniquePrefix)
 		})
+
 		update(cols, legendCSSSelector)
-		setChart(chart)	//TODO...
+
+		const proxy = {
+			focus: function(p) {chart.focus(p)}, 
+			defocus: function(p) {chart.defocus(p)}
+		}
+		setFocusMethods(proxy.focus, proxy.defocus)
 	}
 }
 
 
 export function update(cols, legendCSSSelector) {
 	chart.load({
-		unload: true, // TODO - use the diff to make smooth transition
+		unload: getDiff(currentCols, cols), 	// smooth transition
 		columns: cols,
 		done: function () {
 			if(!displayMissingDataInLegend(cols, uniquePrefix)) {
@@ -56,8 +64,22 @@ export function update(cols, legendCSSSelector) {
 			addLegendKeyboardNavigability(legendCSSSelector)
 		}
 	})
+
+	currentCols = cols
 }
 
 export function setYLabel(text) {
 	chart.axis.labels({ y: text })
+}
+
+// which of currentCols are not in newCols? returns array.
+function getDiff(currentCols, newCols) {
+	let retVal = []
+	currentCols.forEach(e=> {
+		if( newCols.filter(e2=>e2[0]==e[0]).length == 0 ) {
+			retVal.push(e[0])
+		}
+		
+	})
+	return retVal
 }
