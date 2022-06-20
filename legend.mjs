@@ -108,6 +108,11 @@ export function legendCSS(uniquePrefix) {
 .bb-tooltip th {
   background: black;
 }
+
+.bb-axis-y-label {
+  font-size: 1rem;
+}
+
 </style>
 `
 }
