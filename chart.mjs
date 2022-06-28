@@ -7,10 +7,10 @@ let isInitialized = false
 let currentCols = []
 let toast
 let uniquePrefix
+let unitText
 
-
-export function init(type, chartCSSSelector, legendCSSSelector, cols, bla, categories, unitText) {
-	
+export function init(type, chartCSSSelector, legendCSSSelector, cols, bla, categories, _unitText) {
+	unitText = _unitText
 	if (isInitialized) {
 		update(cols, legendCSSSelector)
 	} else {
