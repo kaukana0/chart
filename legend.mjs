@@ -3,17 +3,17 @@ let focusLegendElement		// a function
 let defocusLegendElement	// a function
 
 
-// narrow interface; legend doesn't need to know more of the chart that just this
+// narrow interface; legend doesn't need to know more of the chart than just this
 export function setFocusMethods(focus, defocus) {
 	focusLegendElement = focus
 	defocusLegendElement = defocus
 }
 
-export function legend(legendCSSSelector, uniquePrefix) {
+export function legend(DOMElementId, uniquePrefix) {
 	return {
 		position: "right",
 		contents: {
-			bindto: legendCSSSelector,
+			bindto: "#" + DOMElementId,
 			template: function (title, color) {
 				return `<span class="${uniquePrefix}" id="${uniquePrefix + title}" style="border-color: ${color};" tabindex=0> ${title} </span>`
 			}
@@ -62,9 +62,9 @@ export function displayMissingDataInLegend(cols, uniquePrefix) {
 }
 
 
-export function addLegendKeyboardNavigability(legendCSSSelector) {
+export function addLegendKeyboardNavigability(DOMElementId) {
 	// all span children under the element with given selector
-	document.querySelector(legendCSSSelector).querySelectorAll("span")
+	document.querySelector(DOMElementId).querySelectorAll("span")
 	.forEach( e => {e.addEventListener("keydown", ke => {
 			if(ke.keyCode==13) {
 				ke.target.click()

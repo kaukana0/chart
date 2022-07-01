@@ -2,74 +2,62 @@ import {legend, displayMissingDataInLegend, addLegendKeyboardNavigability, legen
 import toastHtml from "./toast.mjs"
 import {grid, axis} from "./rest.mjs"
 
-export let chart
-let isInitialized = false
-let currentCols = []
-let toast
-let uniquePrefix
-let unitText
 
-export function init(type, chartCSSSelector, legendCSSSelector, cols, bla, categories, _unitText) {
-	unitText = _unitText
-	if (isInitialized) {
-		update(cols, legendCSSSelector)
-	} else {
-		isInitialized = true
+class States {
+	static states = new Map()
 
-		// a crook because of light-DOM to avoid problems w/ multiple charts
-		uniquePrefix = "chartElement" + Math.floor(Math.random() * 10000)
-
-		document.head.insertAdjacentHTML("beforeend", legendCSS(uniquePrefix))
-
-		document.body.insertAdjacentHTML("beforeend", toastHtml(uniquePrefix + "toast"))
-		toast = new bootstrap.Toast(document.getElementById(uniquePrefix + "toast"))
-
-		chart = bb.generate({
-			bindto: chartCSSSelector,
-			data: {
-				columns: [],
-				type: type
-			},
-			grid: grid(),
-			axis: axis(categories),
-			tooltip: {
-				show: true,
-				format: {
-					name: function (name, ratio, id, index) { return bla.get(id) },
-					value: function (value, ratio, id, index) { return value + unitText }
-				}
-			},
-			legend: legend(legendCSSSelector, uniquePrefix)
+	static add(chartDOMElementId, legendDOMElementId, bla, categories, unitText) {
+		this.states.set(chartDOMElementId, {
+			id: chartDOMElementId,
+			legendDOMElementId: legendDOMElementId,
+			bla: bla,
+			categories: categories,
+			unitText: unitText,
+			// a crook because of light-DOM to avoid problems w/ multiple charts
+			uniquePrefix: "chartElement" + Math.floor(Math.random() * 10000),
+			currentCols: [],
 		})
+		return this.get(chartDOMElementId)
+	}
+	
+	static has(id) { return this.states.has(id) }
+	static get(id) { return this.states.get(id) }
+}
+let states = new States()
 
-		update(cols, legendCSSSelector)
+let toast
 
-		const proxy = {
-			focus: function(p) {chart.focus(p)}, 
-			defocus: function(p) {chart.defocus(p)}
+
+
+export function init(type, chartDOMElementId, legendDOMElementId, cols, bla, categories, unitText) {
+	if(States.has(chartDOMElementId)) {
+		update(cols, States.get(chartDOMElementId))
+	} else {
+		// create a new state, a new billoardjs-chart and hook up a legend to the chart
+		connectLegend(createChart(States.add(chartDOMElementId, legendDOMElementId, bla, categories, unitText), type))
+		update(cols, States.get(chartDOMElementId))
+		if(!toast) {
+			toast = createToast(States.get(chartDOMElementId).uniquePrefix)	// any uniquePrefix would do really; just take from 1st chart out of convenience
 		}
-		setFocusMethods(proxy.focus, proxy.defocus)
 	}
 }
 
-
-export function update(cols, legendCSSSelector) {
-	chart.load({
-		unload: getDiff(currentCols, cols), 	// smooth transition
+export function update(cols, chart) {
+	chart.chart.load({
+		unload: getDiff(chart.currentCols, cols), 	// smooth transition
 		columns: cols,
 		done: function () {
-			if(!displayMissingDataInLegend(cols, uniquePrefix)) {
+			if(!displayMissingDataInLegend(cols, chart.uniquePrefix)) {
 				toast.show()	// disappears by itself
 			}
-			addLegendKeyboardNavigability(legendCSSSelector)
+			//addLegendKeyboardNavigability(chart.legendDOMElementId)
 		}
 	})
-
-	currentCols = cols
+	chart.currentCols = cols
 }
 
-export function setYLabel(text) {
-	chart.axis.labels({ y: text })
+export function setYLabel(chartDOMElementId, text) {
+	States.get(chartDOMElementId).chart.axis.labels({ y: text })
 }
 
 // which of currentCols are not in newCols? returns array.
@@ -79,7 +67,41 @@ function getDiff(currentCols, newCols) {
 		if( newCols.filter(e2=>e2[0]==e[0]).length == 0 ) {
 			retVal.push(e[0])
 		}
-		
 	})
 	return retVal
+}
+
+function createToast(uniquePrefix) {
+	document.body.insertAdjacentHTML("beforeend", toastHtml(uniquePrefix + "toast"))
+	return new bootstrap.Toast(document.getElementById(uniquePrefix + "toast"))
+}
+
+function createChart(chartState, type) {
+	chartState.chart = bb.generate({
+		bindto: "#"+chartState.id,
+		data: {
+			columns: [],
+			type: type
+		},
+		grid: grid(),
+		axis: axis(chartState.categories),
+		tooltip: {
+			show: true,
+			format: {
+				name: function (name, ratio, id, index) { return chartState.bla.get(id) },
+				value: function (value, ratio, id, index) { return value + chartState.unitText }
+			}
+		},
+		//legend: legend(chartState.legendDOMElementId, chartState.uniquePrefix)
+	})
+	return chartState
+}
+
+function connectLegend(chartState) {
+	document.head.insertAdjacentHTML("beforeend", legendCSS(chartState.uniquePrefix))
+	const proxy = {
+		focus: function(p) {chartState.chart.focus(p)}, 
+		defocus: function(p) {chartState.chart.defocus(p)}
+	}
+	setFocusMethods(proxy.focus, proxy.defocus)
 }
