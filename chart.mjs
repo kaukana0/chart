@@ -92,7 +92,7 @@ function createChart(chartState, type) {
 				value: function (value, ratio, id, index) { return value + chartState.unitText }
 			}
 		},
-		//legend: legend(chartState.legendDOMElementId, chartState.uniquePrefix)
+		legend: legend(chartState.legendDOMElementId, chartState.uniquePrefix)
 	})
 	return chartState
 }
