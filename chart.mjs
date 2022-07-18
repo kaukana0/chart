@@ -6,11 +6,11 @@ import {grid, axis} from "./rest.mjs"
 class State {
 	static states = new Map()
 
-	static add(chartDOMElementId, legendDOMElementId, bla, categories, unitText) {
+	static add(chartDOMElementId, legendDOMElementId, allLegendTexts, categories, unitText) {
 		this.states.set(chartDOMElementId, {
 			id: chartDOMElementId,
 			legendDOMElementId: legendDOMElementId,
-			bla: bla,
+			allLegendTexts: allLegendTexts,
 			categories: categories,
 			unitText: unitText,
 			// a crook because of light-DOM to avoid problems w/ multiple charts
@@ -20,11 +20,12 @@ class State {
 		return this.get(chartDOMElementId)
 	}
 
-	static update(id, categories, unitText) {
+	static update(id, categories, unitText, allLegendTexts) {
 		const state = this.get(id)
 		if(state) {
 			state.categories = categories
 			state.unitText = unitText
+			state.allLegendTexts = allLegendTexts
 		}
 		return state
 	}
@@ -36,12 +37,12 @@ class State {
 let toast
 
 
-export function init(type, chartDOMElementId, legendDOMElementId, cols, bla, categories, unitText) {
+export function init(type, chartDOMElementId, legendDOMElementId, cols, allLegendTexts, categories, unitText) {
 	if(State.has(chartDOMElementId)) {
-		updateChart(cols, State.update(chartDOMElementId, categories, unitText))
+		updateChart(cols, State.update(chartDOMElementId, categories, unitText, allLegendTexts))
 	} else {
 		// create a new state, a new billoardjs-chart and hook up a legend to the chart
-		connectLegend(createChart(State.add(chartDOMElementId, legendDOMElementId, bla, categories, unitText), type))
+		connectLegend(createChart(State.add(chartDOMElementId, legendDOMElementId, allLegendTexts, categories, unitText), type))
 		updateChart(cols, State.get(chartDOMElementId))
 		if(!toast) {
 			toast = createToast(State.get(chartDOMElementId).uniquePrefix)	// any uniquePrefix would do really; just take from 1st chart out of convenience
@@ -61,7 +62,7 @@ function createChart(chartState, type) {
 		tooltip: {
 			show: true,
 			format: {
-				name: function (name, ratio, id, index) { return chartState.bla.get(id) },
+				name: function (name, ratio, id, index) { return chartState.allLegendTexts.get(id) },
 				value: function (value, ratio, id, index) { return value + chartState.unitText }
 			}
 		},
@@ -71,7 +72,6 @@ function createChart(chartState, type) {
 }
 
 export function updateChart(cols, chart) {
-	console.log(chart.categories)
 	chart.chart.load({
 		unload: getDiff(chart.currentCols, cols), 	// smooth transition
 		columns: cols,
