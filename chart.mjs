@@ -3,6 +3,9 @@ import toastHtml from "./toast.mjs"
 import {grid, axis} from "./rest.mjs"
 
 
+let toast		// tasty but unhealthy
+
+
 class State {
 	static states = new Map()
 
@@ -25,7 +28,8 @@ class State {
 		if(state) {
 			state.categories = categories
 			state.unitText = unitText
-			state.allLegendTexts = allLegendTexts
+			// we need to hold all texts possible in the legend in order to let the chart pick the one it needs to display at runtime
+			state.allLegendTexts = allLegendTexts	
 		}
 		return state
 	}
@@ -33,8 +37,6 @@ class State {
 	static has(id) { return this.states.has(id) }
 	static get(id) { return this.states.get(id) }
 }
-
-let toast
 
 
 export function init(type, chartDOMElementId, legendDOMElementId, cols, allLegendTexts, categories, unitText) {
@@ -92,6 +94,7 @@ export function setYLabel(chartDOMElementId, text) {
 }
 
 // which of currentCols are not in newCols? returns array.
+// its actually a set difference: currentCols - newCols
 function getDiff(currentCols, newCols) {
 	let retVal = []
 	currentCols.forEach(e=> {
