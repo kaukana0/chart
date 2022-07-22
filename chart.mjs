@@ -1,4 +1,4 @@
-import {legend, displayMissingDataInLegend, addLegendKeyboardNavigability, legendCSS, setFocusMethods} from "./legend.mjs"
+import {legend, displayMissingDataInLegend, addLegendKeyboardNavigability, legendCSS, setChartInterface} from "./legend.mjs"
 import toastHtml from "./toast.mjs"
 import {grid, axis} from "./rest.mjs"
 
@@ -114,7 +114,8 @@ function connectLegend(chartState) {
 	document.head.insertAdjacentHTML("beforeend", legendCSS(chartState.uniquePrefix))
 	const proxy = {
 		focus: function(p) {chartState.chart.focus(p)}, 
-		defocus: function(p) {chartState.chart.defocus(p)}
+		defocus: function(p) {chartState.chart.defocus(p)},
+		getTooltipText: function(p) {return chartState.allLegendTexts.get(p)}
 	}
-	setFocusMethods(proxy.focus, proxy.defocus)
+	setChartInterface(proxy.focus, proxy.defocus, proxy.getTooltipText)
 }

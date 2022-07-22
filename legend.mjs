@@ -1,12 +1,14 @@
 let currentSelection
 let focusLegendElement		// a function
 let defocusLegendElement	// a function
+let getTooltipText			// a function
 
 
 // narrow interface; legend doesn't need to know more of the chart than just this
-export function setFocusMethods(focus, defocus) {
+export function setChartInterface(focus, defocus, tooltipTextGetter) {
 	focusLegendElement = focus
 	defocusLegendElement = defocus
+	getTooltipText = tooltipTextGetter
 }
 
 export function legend(DOMElementId, uniquePrefix) {
@@ -15,7 +17,7 @@ export function legend(DOMElementId, uniquePrefix) {
 		contents: {
 			bindto: "#" + DOMElementId,
 			template: function (title, color) {
-				return `<span class="${uniquePrefix}" id="${uniquePrefix + title}" style="border-color: ${color};" tabindex=0> ${title} </span>`
+				return `<span class="${uniquePrefix}" id="${uniquePrefix + title}" style="border-color: ${color};" tabindex=0 title="${getTooltipText(title)}"> ${title} </span>`
 			}
 		},
 		item: {
