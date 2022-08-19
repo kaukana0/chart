@@ -19,7 +19,7 @@ export function legend(DOMElementId, uniquePrefix) {
 			}
 		},
 		item: {
-			// the one clicked stays as is, while all others fade out a little bit
+			// the one clicked stays as is (it's getting "focussed on"), while all others fade out a little bit
 			onclick: function (id) {
 				if (currentSelection) {
 					if (id == currentSelection) {

@@ -6,13 +6,13 @@ import {grid, axis} from "./rest.mjs"
 class States {
 	static states = new Map()
 
-	static add(chartDOMElementId, legendDOMElementId, bla, categories, unitText) {
+	static add(chartDOMElementId, legendDOMElementId, tooltipTexts, suffixText, isRotated) {
 		this.states.set(chartDOMElementId, {
 			id: chartDOMElementId,
 			legendDOMElementId: legendDOMElementId,
-			bla: bla,
-			categories: categories,
-			unitText: unitText,
+			tooltipTexts: tooltipTexts,
+			suffixText: suffixText,
+			isRotated: isRotated,
 			// a crook because of light-DOM to avoid problems w/ multiple charts
 			uniquePrefix: "chartElement" + Math.floor(Math.random() * 10000),
 			currentCols: [],
@@ -27,17 +27,33 @@ let states = new States()
 
 let toast
 
-
-
-export function init(type, chartDOMElementId, legendDOMElementId, cols, bla, categories, unitText) {
-	if(States.has(chartDOMElementId)) {
-		update(cols, States.get(chartDOMElementId))
+/*
+cfg = {
+	type: ,						// "line" or "bar" etc.
+	chartDOMElementId: ,		// to which DOM elelement to attach the chart
+	legendDOMElementId: ,		// to which DOM elelement to attach the legend; null means no legend
+	// cols data format:
+	// [
+	//   ["x", "EU", "AT", "DK"],
+	// 	 ["", 10, 20, 30] 
+	// ]
+	cols: ,
+	tooltipTexts: ,				// a Map(). key=category. values are being displayed in the tooltip.
+								// note: category = first array in cols w/o 1st element.
+	suffixText: ,				// for display in tooltip
+	isRotated: 					// true makes it vertical and changes some visual details
+}
+*/
+export function init(cfg) {
+	if(States.has(cfg.chartDOMElementId)) {
+		update(cfg.cols, States.get(cfg.chartDOMElementId))
 	} else {
+		const categories = cfg.cols[0].slice(1) // an array containing elements for the main axis - similar to the first array in cols w/o 1st element.
 		// create a new state, a new billoardjs-chart and hook up a legend to the chart
-		connectLegend(createChart(States.add(chartDOMElementId, legendDOMElementId, bla, categories, unitText), type))
-		update(cols, States.get(chartDOMElementId))
+		connectLegend(createChart(States.add(cfg.chartDOMElementId, cfg.legendDOMElementId, cfg.tooltipTexts, cfg.suffixText, cfg.isRotated), cfg.type, categories))
+		update(cfg.cols, States.get(cfg.chartDOMElementId))
 		if(!toast) {
-			toast = createToast(States.get(chartDOMElementId).uniquePrefix)	// any uniquePrefix would do really; just take from 1st chart out of convenience
+			toast = createToast(States.get(cfg.chartDOMElementId).uniquePrefix)	// any uniquePrefix would do really; just take from 1st chart out of convenience
 		}
 	}
 }
@@ -76,24 +92,35 @@ function createToast(uniquePrefix) {
 	return new bootstrap.Toast(document.getElementById(uniquePrefix + "toast"))
 }
 
-function createChart(chartState, type) {
-	chartState.chart = bb.generate({
+function createChart(chartState, type, cols) {
+	const cfg = {
 		bindto: "#"+chartState.id,
 		data: {
 			columns: [],
 			type: type
 		},
 		grid: grid(),
-		axis: axis(chartState.categories),
+		axis: axis(cols, chartState.isRotated),
 		tooltip: {
 			show: true,
 			format: {
-				name: function (name, ratio, id, index) { return chartState.bla.get(id) },
-				value: function (value, ratio, id, index) { return value + chartState.unitText }
+				name: function (name, ratio, id, index) { return chartState.tooltipTexts.get(id) },
+				value: function (value, ratio, id, index) { return value + chartState.suffixText }
 			}
-		},
-		legend: legend(chartState.legendDOMElementId, chartState.uniquePrefix)
-	})
+		}
+	}
+
+	if(chartState.legendDOMElementId) {
+		cfg["legend"] = legend(chartState.legendDOMElementId, chartState.uniquePrefix)
+	} else {
+		cfg["legend"] = {
+			show: false,
+			hide: true,
+		}
+	}
+
+	chartState.chart = bb.generate(cfg)
+
 	return chartState
 }
 

@@ -8,8 +8,8 @@ export function grid() {
 }
 
 
-export function axis(categories) {
-	return {
+export function axis(categories, isRotated) {
+	const retVal = {
 		x: {
 			type: "category",
 			categories: categories,
@@ -31,4 +31,15 @@ export function axis(categories) {
 			}
 		}
 	}
+
+	if(isRotated) {
+		retVal["rotated"]=true
+		retVal["y2"] = {}
+		retVal["y2"]["show"]=true	//this puts the axis on top instad of the bottom
+		retVal["y"]["show"]=false
+		retVal["y"]["tick"] = {}
+		retVal["y"]["tick"]["show"]=false
+	}
+
+	return retVal;
 }
