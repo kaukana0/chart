@@ -121,7 +121,11 @@ function createChart(chartState, type, categories) {
 				name: function (name, ratio, id, index) { return chartState.tooltipTexts.get(id) },
 				value: function (value, ratio, id, index) { return value + chartState.suffixText }
 			}
+		},
+		onresized: function() {
+			displayMissingDataInLegend(chartState.currentCols, chartState.uniquePrefix)
 		}
+	
 	}
 
 	if(chartState.legendDOMElementId) {
@@ -150,6 +154,7 @@ export function updateChart(cols, chart) {
 			//addLegendKeyboardNavigability(chart.legendDOMElementId)
 		}
 	})
+
 	chart.currentCols = cols
 }
 
