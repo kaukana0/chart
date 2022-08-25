@@ -17,11 +17,9 @@ export function axis(categories, isRotated) {
 				centered: true,
 				outer: false,
 				multiline: false,
-				useFit: false,
-				culling: {
-					max: 1
-				},
-				//rotate: -45
+				useFit: true,
+				rotate: -45,
+				autorotate: true
 			}
 		},
 		y: {
