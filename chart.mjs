@@ -103,6 +103,7 @@ export function init(cfg) {
 		if(!toast) {
 			toast = createToast(States.get(cfg.chartDOMElementId).uniquePrefix)	// any uniquePrefix would do really; just take from 1st chart out of convenience
 		}
+		makeTooltipDismissable(cfg.chartDOMElementId)
 	}
 }
 
@@ -117,6 +118,8 @@ function createChart(chartState, type, categories) {
 		axis: axis(categories, chartState.isRotated),
 		tooltip: {
 			show: true,
+			// this takes care of disappearing when clicking inside the chart.
+			// disappearing by clicking anywhere else is up to the user of this component.
 			doNotHide: false,
 			format: {
 				name: function (name, ratio, id, index) { return chartState.tooltipTexts.get(id) },
@@ -188,4 +191,12 @@ function connectLegend(chartState) {
 		getTooltipText: function(p) {return chartState.tooltipTexts.get(p)}
 	}
 	setChartInterface(proxy.focus, proxy.defocus, proxy.getTooltipText)
+}
+
+function makeTooltipDismissable(chartDOMElementId) {
+	document.addEventListener('click', (e) => {
+		if(e.target.id != chartDOMElementId) {
+			States.get(chartDOMElementId).chart.tooltip.hide()
+		}
+	})
 }
