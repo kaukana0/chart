@@ -117,6 +117,7 @@ function createChart(chartState, type, categories) {
 		axis: axis(categories, chartState.isRotated),
 		tooltip: {
 			show: true,
+			doNotHide: false,
 			format: {
 				name: function (name, ratio, id, index) { return chartState.tooltipTexts.get(id) },
 				value: function (value, ratio, id, index) { return value + chartState.suffixText }
@@ -142,20 +143,20 @@ function createChart(chartState, type, categories) {
 	return chartState
 }
 
-export function updateChart(cols, chart) {
-	chart.chart.load({
-		unload: getDiff(chart.currentCols, cols), 	// smooth transition
+export function updateChart(cols, chartState) {
+	chartState.chart.load({
+		unload: getDiff(chartState.currentCols, cols), 	// smooth transition
 		columns: cols,
-		categories: chart.categories,
+		categories: chartState.categories,
 		done: function () {
-			if(!displayMissingDataInLegend(cols, chart.uniquePrefix)) {
+			if(!displayMissingDataInLegend(cols, chartState.uniquePrefix)) {
 				toast.show()	// disappears by itself
 			}
 			//addLegendKeyboardNavigability(chart.legendDOMElementId)
 		}
 	})
 
-	chart.currentCols = cols
+	chartState.currentCols = cols
 }
 
 export function setYLabel(chartDOMElementId, text) {
