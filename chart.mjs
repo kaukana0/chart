@@ -59,7 +59,7 @@ let toast		// tasty but unhealthy
 class States {
 	static states = new Map()
 
-	static add(chartDOMElementId, legendDOMElementId, categories, tooltipTexts, suffixText, isRotated) {
+	static add(chartDOMElementId, legendDOMElementId, categories, tooltipTexts, suffixText, isRotated, onFinished) {
 		this.states.set(chartDOMElementId, {
 			id: chartDOMElementId,
 			legendDOMElementId: legendDOMElementId,
@@ -71,6 +71,7 @@ class States {
 			// a crook because of light-DOM to avoid problems w/ multiple charts
 			uniquePrefix: "chartElement" + Math.floor(Math.random() * 10000),
 			currentCols: [],
+			onFinished: onFinished
 		})
 		return this.get(chartDOMElementId)
 	}
@@ -98,7 +99,7 @@ export function init(cfg) {
 		updateChart(getSeries(cfg.cols), States.update(cfg.chartDOMElementId, getCategories(cfg.cols), cfg.suffixText, cfg.tooltipTexts))
 	} else {
 		// create a new state, a new billoardjs-chart and hook up a legend to the chart
-		connectLegend(createChart(States.add(cfg.chartDOMElementId, cfg.legendDOMElementId, getCategories(cfg.cols), cfg.tooltipTexts, cfg.suffixText, cfg.isRotated), cfg.type, getCategories(cfg.cols)))
+		connectLegend(createChart(States.add(cfg.chartDOMElementId, cfg.legendDOMElementId, getCategories(cfg.cols), cfg.tooltipTexts, cfg.suffixText, cfg.isRotated, cfg.onFinished), cfg.type, getCategories(cfg.cols)))
 		updateChart(getSeries(cfg.cols), States.get(cfg.chartDOMElementId))
 		if(!toast) {
 			toast = createToast(States.get(cfg.chartDOMElementId).uniquePrefix)	// any uniquePrefix would do really; just take from 1st chart out of convenience
@@ -156,6 +157,7 @@ export function updateChart(cols, chartState) {
 				toast.show()	// disappears by itself
 			}
 			//addLegendKeyboardNavigability(chart.legendDOMElementId)
+			chartState.onFinished()
 		}
 	})
 
