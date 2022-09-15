@@ -1,14 +1,10 @@
 let currentSelection
-let focusLegendElement		// a function
-let defocusLegendElement	// a function
-let getTooltipText			// a function
+let chartInterface
 
 
 // narrow interface; legend doesn't need to know more of the chart than just this
-export function setChartInterface(focus, defocus, tooltipTextGetter) {
-	focusLegendElement = focus
-	defocusLegendElement = defocus
-	getTooltipText = tooltipTextGetter
+export function setChartInterface(_chartInterface) {
+	chartInterface = _chartInterface
 }
 
 export function legend(DOMElementId, uniquePrefix) {
@@ -16,8 +12,11 @@ export function legend(DOMElementId, uniquePrefix) {
 		position: "right",
 		contents: {
 			bindto: "#" + DOMElementId,
-			template: function (title, color) {
-				return `<span class="${uniquePrefix}" id="${uniquePrefix + title}" style="border-color: ${color};" tabindex=0 title="${getTooltipText(title)}"> ${title} </span>`
+			template: function (title, _) {
+				// when chart.data specifies "color" instead of "colors",
+				// initially this callback's second arg is undefined and all legend colors become black.
+				// so, second arg (color) is useless in that case - maybe it's a billboard.js bug.
+				return `<span class="${uniquePrefix}" id="${uniquePrefix + title}" style="border-color: ${chartInterface.getColor(title)};" tabindex=0 title="${chartInterface.getTooltipText(title)}"> ${title} </span>`
 			}
 		},
 		item: {
@@ -26,10 +25,10 @@ export function legend(DOMElementId, uniquePrefix) {
 				if (currentSelection) {
 					if (id == currentSelection) {
 						currentSelection = null
-						focusLegendElement()
+						chartInterface.focus()
 					} else {
 						currentSelection = id
-						defocusLegendElement()
+						chartInterface.defocus()
 						window.requestAnimationFrame(() => focusLegendElement(id))
 					}
 				} else {
@@ -46,7 +45,7 @@ export function legend(DOMElementId, uniquePrefix) {
 
 
 // grey out legend elements that have no data
-// cols is [["dataSeriesName",..values...], ["dataSeriesName",..values...]]
+// cols is [["dataSeriesKey",..values...], ["dataSeriesKey",..values...]]
 // returns true if any data exists at all, false othewise
 export function displayMissingDataInLegend(cols, uniquePrefix) {
 	let someDataExists = false

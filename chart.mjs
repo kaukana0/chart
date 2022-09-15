@@ -1,5 +1,10 @@
 /*
-some definitions:
+A chart is a billboard.js DOM element.
+This module can handle multiple such charts.
+Each chart gets it's own context, containing the state of all it's relevant configurations.
+
+
+Some definitions:
 
             ^
         40  |    * S1         + S2           legend:
@@ -20,8 +25,8 @@ tooltip example when hovering over c2:
 
     c2
     ------------------------------
-    seriesLabels[S1]  |  20 suffix
-    seriesLabels[S2]  |  30 suffix
+    seriesLabels[S1]  |  20 suffixText
+    seriesLabels[S2]  |  30 suffixText
 
 
 
@@ -43,7 +48,9 @@ cfg = {
 	cols: ,
 	seriesLabels: ,				// a Map(). key=series key, values are being displayed in the tooltips.
 	suffixText: ,				// for display in tooltip
-	isRotated: 					// true makes it vertical and changes some visual details
+	isRotated: ,				// true makes it vertical and changes some visual details
+	palette: ,					// array containing colors which are applied to currently selected series (by a simple algorithm: front to back)
+	fixColors: ,				// a map, overriding palette colors mechanism by assigning colors for specified series
 }
 
 */
@@ -56,85 +63,116 @@ import {grid, axis} from "./rest.mjs"
 let toast		// tasty but unhealthy
 
 
-class States {
-	static states = new Map()
+class Contexts {
+	static states = new Map()		// each chart gets it's own state (aka "context")
 
-	static add(chartDOMElementId, legendDOMElementId, categories, tooltipTexts, suffixText, isRotated, onFinished) {
-		this.states.set(chartDOMElementId, {
-			id: chartDOMElementId,
-			legendDOMElementId: legendDOMElementId,
-			categories: categories,
-			// we need to hold all texts possible in the legend in order to let the chart pick the one it needs to display at runtime
-			tooltipTexts: tooltipTexts,
-			suffixText: suffixText,
-			isRotated: isRotated,
-			// a crook because of light-DOM to avoid problems w/ multiple charts
-			uniquePrefix: "chartElement" + Math.floor(Math.random() * 10000),
-			currentCols: [],
-			onFinished: onFinished
-		})
-		return this.get(chartDOMElementId)
-	}
+	static add(context) {
 
-	static update(id, categories, suffixText, tooltipTexts) {
-		const state = this.get(id)
-		if(state) {
-			state.categories = categories
-			state.suffixText = suffixText
-			state.tooltipTexts = tooltipTexts	
+		context.update = function(that) {
+			Object.assign(this,that)
+			return this
 		}
-		return state
-	}
 
+		context.updateColors = function(cols) {
+			this.colors = new Map()
+			const currentlySelectedSeriesKeys = getSeriesKeys(cols)
+			let idx = 0
+			currentlySelectedSeriesKeys.forEach( (e) => {
+				if(this.fixColors[e]) {
+					this.colors.set(e, this.fixColors[e])
+				} else {
+					this.colors.set(e, this.palette[idx++])
+				}
+			})
+		}
+
+		this.states.set(context.id, context)
+		return context
+	}
 	static has(id) { return this.states.has(id) }
 	static get(id) { return this.states.get(id) }
+
 }
 
-function getSeries(cols) { return cols.slice(1) }	// remove 1st array in col array yields all series' keys (see also head comment)
+function getSeries(cols) { return cols.slice(1) }		// col array w/o 1st entry (also an array) yields all series' keys+data (see also head comment)
+function getSeriesKeys(cols) { return cols.map(e=>e[0]) }	// 1st element of every sub-array (in the array) yields all series' keys
 function getCategories(cols) { return cols[0] }
 
 
 export function init(cfg) {
-	if(States.has(cfg.chartDOMElementId)) {
-		updateChart(getSeries(cfg.cols), States.update(cfg.chartDOMElementId, getCategories(cfg.cols), cfg.suffixText, cfg.tooltipTexts))
+	if(Contexts.has(cfg.chartDOMElementId)) {
+		toast.hide()
+		updateChart(getSeries(cfg.cols), Contexts.get(cfg.chartDOMElementId).update({
+				categories: getCategories(cfg.cols),
+				suffixText: cfg.suffixText,
+				seriesLabels: cfg.seriesLabels
+			})
+		)
 	} else {
-		// create a new state, a new billoardjs-chart and hook up a legend to the chart
-		connectLegend(createChart(States.add(cfg.chartDOMElementId, cfg.legendDOMElementId, getCategories(cfg.cols), cfg.tooltipTexts, cfg.suffixText, cfg.isRotated, cfg.onFinished), cfg.type, getCategories(cfg.cols)))
-		updateChart(getSeries(cfg.cols), States.get(cfg.chartDOMElementId))
-		if(!toast) {
-			toast = createToast(States.get(cfg.chartDOMElementId).uniquePrefix)	// any uniquePrefix would do really; just take from 1st chart out of convenience
+		connectLegend(
+			updateChart(getSeries(cfg.cols),
+				createChart(
+					Contexts.add({
+							id: cfg.chartDOMElementId,
+							legendDOMElementId: cfg.legendDOMElementId,
+							categories: getCategories(cfg.cols),
+							// we need to hold all texts possible in the legend in order to let the chart pick the one it needs to display at runtime
+							seriesLabels: cfg.seriesLabels,
+							suffixText: cfg.suffixText,
+							isRotated: cfg.isRotated,
+							// a crook because of light-DOM to avoid problems w/ multiple charts
+							uniquePrefix: "chartElement" + Math.floor(Math.random() * 10000),
+							currentCols: [],
+							onFinished: cfg.onFinished,
+							palette: cfg.palette,
+							fixColors: cfg.fixColors
+						}),
+					cfg.type, getCategories(cfg.cols), cfg.cols
+				)
+			)
+		)
+
+		if(toast) {
+			toast.hide()
+		} else {
+			toast = createToast(Contexts.get(cfg.chartDOMElementId).uniquePrefix)	// any uniquePrefix would do really; just take from 1st chart out of convenience
 		}
+
 		makeTooltipDismissable(cfg.chartDOMElementId)
 	}
 }
 
-function createChart(chartState, type, categories) {
+
+function createChart(context, type, categories, cols) {		// using billboard.js
+
 	const cfg = {
-		bindto: "#"+chartState.id,
+		bindto: "#"+context.id,
 		data: {
 			columns: [],
-			type: type
+			type: type,
+			color: (_, d) => { return context.colors.get(d.id) },
 		},
 		grid: grid(),
-		axis: axis(categories, chartState.isRotated),
+		axis: axis(categories, context.isRotated),
 		tooltip: {
 			show: true,
 			// this takes care of disappearing when clicking inside the chart.
 			// disappearing by clicking anywhere else is up to the user of this component.
 			doNotHide: false,
 			format: {
-				name: function (name, ratio, id, index) { return chartState.tooltipTexts.get(id) },
-				value: function (value, ratio, id, index) { return value + chartState.suffixText }
+				name: function (name, ratio, id, index) { return context.seriesLabels.get(id) },
+				value: function (value, ratio, id, index) { return value + context.suffixText }
 			}
 		},
 		onresized: function() {
-			displayMissingDataInLegend(chartState.currentCols, chartState.uniquePrefix)
+			displayMissingDataInLegend(context.currentCols, context.uniquePrefix)
 		}
 	
 	}
 
-	if(chartState.legendDOMElementId) {
-		cfg["legend"] = legend(chartState.legendDOMElementId, chartState.uniquePrefix)
+	if(context.legendDOMElementId) {
+		cfg["legend"] = legend(context.legendDOMElementId, context.uniquePrefix)
+		document.head.insertAdjacentHTML("beforeend", legendCSS(context.uniquePrefix))
 	} else {
 		cfg["legend"] = {
 			show: false,
@@ -142,30 +180,34 @@ function createChart(chartState, type, categories) {
 		}
 	}
 
-	chartState.chart = bb.generate(cfg)
+	context.update({chart: bb.generate(cfg)})	// the billboard.js DOM element
 
-	return chartState
+	return context
 }
 
-export function updateChart(cols, chartState) {
-	chartState.chart.load({
-		unload: getDiff(chartState.currentCols, cols), 	// smooth transition
+export function updateChart(cols, context) {
+	context.updateColors(cols)
+
+	context.chart.load({
+		unload: getDiff(context.currentCols, cols), 	// smooth transition
 		columns: cols,
-		categories: chartState.categories,
+		categories: context.categories,
 		done: function () {
-			if(!displayMissingDataInLegend(cols, chartState.uniquePrefix)) {
+			if(!displayMissingDataInLegend(cols, context.uniquePrefix)) {
 				toast.show()	// disappears by itself
 			}
 			//addLegendKeyboardNavigability(chart.legendDOMElementId)
-			chartState.onFinished()
+			context.onFinished()
 		}
 	})
 
-	chartState.currentCols = cols
+	context.update({currentCols: cols})
+
+	return context
 }
 
 export function setYLabel(chartDOMElementId, text) {
-	States.get(chartDOMElementId).chart.axis.labels({ y: text })
+	Contexts.get(chartDOMElementId).chart.axis.labels({ y: text })
 }
 
 // which of currentCols are not in newCols? returns array.
@@ -185,20 +227,19 @@ function createToast(uniquePrefix) {
 	return new bootstrap.Toast(document.getElementById(uniquePrefix + "toast"))
 }
 
-function connectLegend(chartState) {
-	document.head.insertAdjacentHTML("beforeend", legendCSS(chartState.uniquePrefix))
-	const proxy = {
-		focus: function(p) {chartState.chart.focus(p)}, 
-		defocus: function(p) {chartState.chart.defocus(p)},
-		getTooltipText: function(p) {return chartState.tooltipTexts.get(p)}
-	}
-	setChartInterface(proxy.focus, proxy.defocus, proxy.getTooltipText)
+function connectLegend(context) {
+	setChartInterface({
+		focus: function(p) {context.chart.focus(p)}, 
+		blur: function(p) {context.chart.defocus(p)},
+		getTooltipText: function(p) {return context.seriesLabels.get(p)},
+		getColor: function(key) {return context.colors.get(key)}
+	})
 }
 
 function makeTooltipDismissable(chartDOMElementId) {
 	document.addEventListener('click', (e) => {
 		if(e.target.id != chartDOMElementId) {
-			States.get(chartDOMElementId).chart.tooltip.hide()
+			Contexts.get(chartDOMElementId).chart.tooltip.hide()
 		}
 	})
 }
