@@ -28,13 +28,13 @@ export function legend(DOMElementId, uniquePrefix) {
 						chartInterface.focus()
 					} else {
 						currentSelection = id
-						chartInterface.defocus()
-						window.requestAnimationFrame(() => focusLegendElement(id))
+						chartInterface.blur()
+						window.requestAnimationFrame(() => chartInterface.focus(id))
 					}
 				} else {
 					currentSelection = id
-					focusLegendElement()
-					window.requestAnimationFrame(() => focusLegendElement(id))
+					chartInterface.focus()
+					window.requestAnimationFrame(() => chartInterface.focus(id))
 				}
 			},
 			onover: function (id) { },
@@ -109,6 +109,16 @@ export function legendCSS(uniquePrefix) {
 .bb-tooltip th {
   background: black;
 }
+
+.bb-tooltip-container {
+	background: white;
+  }
+ 
+  .bb-ygrid {
+	stroke-dasharray: 8 4;
+	shape-rendering: inherit;
+  }
+  
 
 .bb-axis-y-label {
   font-size: 1rem;

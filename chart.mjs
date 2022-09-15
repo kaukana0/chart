@@ -161,7 +161,7 @@ function createChart(context, type, categories, cols) {		// using billboard.js
 			doNotHide: false,
 			format: {
 				name: function (name, ratio, id, index) { return context.seriesLabels.get(id) },
-				value: function (value, ratio, id, index) { return value + context.suffixText }
+				value: function (value, ratio, id, index) { return Number(value).toFixed(1) + context.suffixText }
 			}
 		},
 		onresized: function() {
@@ -202,6 +202,8 @@ export function updateChart(cols, context) {
 	})
 
 	context.update({currentCols: cols})
+
+	context.chart.focus()	// avoid blurring when changing selection while something is focussed
 
 	return context
 }
