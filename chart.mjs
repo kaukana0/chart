@@ -68,7 +68,7 @@ class Contexts {
 
 	static add(context) {
 
-		context.update = function(that) {
+		context.upsert = function(that) {
 			Object.assign(this,that)
 			return this
 		}
@@ -102,7 +102,7 @@ function getCategories(cols) { return cols[0] }
 export function init(cfg) {
 	if(Contexts.has(cfg.chartDOMElementId)) {
 		toast.hide()
-		updateChart(getSeries(cfg.cols), Contexts.get(cfg.chartDOMElementId).update({
+		updateChart(getSeries(cfg.cols), Contexts.get(cfg.chartDOMElementId).upsert({
 				categories: getCategories(cfg.cols),
 				suffixText: cfg.suffixText,
 				seriesLabels: cfg.seriesLabels
@@ -180,7 +180,7 @@ function createChart(context, type, categories, cols) {		// using billboard.js
 		}
 	}
 
-	context.update({chart: bb.generate(cfg)})	// the billboard.js DOM element
+	context.upsert({chart: bb.generate(cfg)})	// the billboard.js DOM element
 
 	return context
 }
@@ -201,7 +201,7 @@ export function updateChart(cols, context) {
 		}
 	})
 
-	context.update({currentCols: cols})
+	context.upsert({currentCols: cols})
 
 	context.chart.focus()	// avoid blurring when changing selection while something is focussed
 
