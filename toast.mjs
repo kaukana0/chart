@@ -3,7 +3,7 @@ export default function toastHtml(id) {
 <div class="toast-container position-fixed top-50 start-50 translate-middle" style="z-index: 50; background-color: #fff;">
   <div id="${id}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="modal-header">
-      <h1 style="color:black;">Information</h1>
+      <p class="h1" style="color:black;">Information</p>
       <button type="button" class="btn-close close" style="float:right;" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
     <div class="toast-body">
@@ -15,6 +15,9 @@ export default function toastHtml(id) {
 <style>
 .${id} {
   background-color: #fff;
+}
+.toast-body{
+  font-size: var(--bs-body-font-size);
 }
 </style>
 `}
