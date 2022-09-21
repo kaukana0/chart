@@ -49,8 +49,8 @@ cfg = {
 	seriesLabels: ,				// a Map(). key=series key, values are being displayed in the tooltips.
 	suffixText: ,				// for display in tooltip
 	isRotated: ,				// true makes it vertical and changes some visual details
-	palette: ,					// array containing colors which are applied to currently selected series (by a simple algorithm: front to back)
-	fixColors: ,				// a map, overriding palette colors mechanism by assigning colors for specified series
+	palette: ,					// array containing colors which are applied to currently selected series (by a simple algorithm: front to back - first entry, first color of palette, 2nd-2nd and so forth)
+	fixColors: ,				// a map, overriding palette colors mechanism by assigning colors for specified series entries
 }
 
 */
@@ -73,7 +73,7 @@ class Contexts {
 			return this
 		}
 
-		context.updateColors = function(cols) {
+		context.updateColors = function(cols) {	// see "usage of function init" palette & fixColors on what this is supposed to do
 			this.colors = new Map()
 			const currentlySelectedSeriesKeys = getSeriesKeys(cols)
 			let idx = 0
@@ -189,7 +189,8 @@ export function updateChart(cols, context) {
 	context.updateColors(cols)
 
 	context.chart.load({
-		unload: getDiff(context.currentCols, cols), 	// smooth transition
+		// unload: getDiff(context.currentCols, cols), 	// smooth transition. sadly, doesn't correctly order legend. 
+		unload: true, 									// unsmooth but order correctly
 		columns: cols,
 		categories: context.categories,
 		done: function () {
