@@ -41,3 +41,53 @@ export function axis(categories, isRotated) {
 
 	return retVal;
 }
+
+export function tooltip(context) {
+	return {
+		show: true,
+		// this takes care of disappearing when clicking inside the chart.
+		// disappearing by clicking anywhere else is up to the user of this component.
+		doNotHide: false,
+		order: (a, b) => a.value>b.value?-1:1,
+
+		// it's not a format, it's actual content...
+		format: {
+			name: function (name, ratio, id, index) { return context.seriesLabels.get(id) },
+			value: function (value, ratio, id, index) { 
+				return Number(value).toFixed(1) + context.suffixText 
+			}
+		}
+	}	
+}
+
+
+export function chartCSS() {
+    return `
+<style>
+
+.bb-tooltip th {
+  background: black;
+}
+
+.bb-tooltip tbody tr td.value {
+	text-align:right;
+	text-color:green;
+}
+
+.bb-tooltip-container {
+	background: white;
+  }
+ 
+  .bb-ygrid {
+	stroke-dasharray: 8 4;
+	shape-rendering: inherit;
+  }
+  
+
+.bb-axis-y-label {
+  font-size: 1rem;
+}
+
+</style>
+`
+}

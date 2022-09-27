@@ -106,24 +106,6 @@ export function legendCSS(uniquePrefix) {
   }
 }
 
-.bb-tooltip th {
-  background: black;
-}
-
-.bb-tooltip-container {
-	background: white;
-  }
- 
-  .bb-ygrid {
-	stroke-dasharray: 8 4;
-	shape-rendering: inherit;
-  }
-  
-
-.bb-axis-y-label {
-  font-size: 1rem;
-}
-
 </style>
 `
 }

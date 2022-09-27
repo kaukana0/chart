@@ -1,4 +1,4 @@
-export default function toastHtml(id) {
+export function toastHtml(id) {
 	return `
 <div class="toast-container position-fixed top-50 start-50 translate-middle" style="z-index: 50; background-color: #fff;">
   <div id="${id}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -12,6 +12,10 @@ export default function toastHtml(id) {
     </div>
   </div>
 </div>
+`}
+
+export function toastCSS(id) {
+  return `
 <style>
 .${id} {
   background-color: #fff;

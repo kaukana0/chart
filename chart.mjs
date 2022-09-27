@@ -56,8 +56,8 @@ cfg = {
 */
 
 import {legend, displayMissingDataInLegend, addLegendKeyboardNavigability, legendCSS, setChartInterface} from "./legend.mjs"
-import toastHtml from "./toast.mjs"
-import {grid, axis} from "./rest.mjs"
+import {grid, axis, tooltip, chartCSS} from "./rest.mjs"	// all the rest
+import {toastHtml, toastCSS} from "./toast.mjs"
 
 
 let toast		// tasty but unhealthy
@@ -109,6 +109,9 @@ export function init(cfg) {
 			})
 		)
 	} else {
+
+		document.head.insertAdjacentHTML("beforeend", chartCSS())
+
 		connectLegend(
 			updateChart(getSeries(cfg.cols),
 				createChart(
@@ -154,16 +157,7 @@ function createChart(context, type, categories, cols) {		// using billboard.js
 		},
 		grid: grid(),
 		axis: axis(categories, context.isRotated),
-		tooltip: {
-			show: true,
-			// this takes care of disappearing when clicking inside the chart.
-			// disappearing by clicking anywhere else is up to the user of this component.
-			doNotHide: false,
-			format: {
-				name: function (name, ratio, id, index) { return context.seriesLabels.get(id) },
-				value: function (value, ratio, id, index) { return Number(value).toFixed(1) + context.suffixText }
-			}
-		},
+		tooltip: tooltip(context),
 		onresized: function() {
 			displayMissingDataInLegend(context.currentCols, context.uniquePrefix)
 		}
@@ -227,6 +221,7 @@ function getDiff(currentCols, newCols) {
 
 function createToast(uniquePrefix) {
 	document.body.insertAdjacentHTML("beforeend", toastHtml(uniquePrefix + "toast"))
+	document.head.insertAdjacentHTML("beforeend", toastCSS(uniquePrefix + "toast"))
 	return new bootstrap.Toast(document.getElementById(uniquePrefix + "toast"))
 }
 
