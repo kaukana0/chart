@@ -58,7 +58,7 @@ export function axis(categories, isRotated, domId) {
 		const wantedTicks = cfg.get(cfg.tickGraduation, drawAreaWidth)
 		const noTicks = wantedTicks>noValues ? noValues : wantedTicks
 		const step = Math.max( Math.ceil(noValues / noTicks), 1)
-		console.log(`chart axis: to label ${noValues} values in a draw area of ${drawAreaWidth} we use ${noTicks} ticks (wanted ${wantedTicks} ticks)`)
+		//console.debug(`chart axis: to label ${noValues} values in a draw area of ${drawAreaWidth} we use ${noTicks} ticks (wanted ${wantedTicks} ticks)`)
 		const u = Array.from({length: noTicks}, (_, i) => i*step)
 		return u
 	}
