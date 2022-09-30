@@ -1,3 +1,7 @@
+/*
+depends on bootstrap 5
+*/
+
 export function toastHtml(id) {
 	return `
 <div class="toast-container position-fixed top-50 start-50 translate-middle" style="z-index: 50; background-color: #fff;">

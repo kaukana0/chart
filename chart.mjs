@@ -3,6 +3,8 @@ A chart is a billboard.js DOM element.
 This module can handle multiple such charts.
 Each chart gets it's own context, containing the state of all it's relevant configurations.
 
+depends on: d3js v6, billboardjs v3, bootstrap 5 (toast)
+
 
 Some definitions:
 
@@ -56,11 +58,16 @@ cfg = {
 */
 
 import {legend, displayMissingDataInLegend, addLegendKeyboardNavigability, legendCSS, setChartInterface} from "./legend.mjs"
-import {grid, axis, tooltip, chartCSS} from "./rest.mjs"	// all the rest
 import {toastHtml, toastCSS} from "./toast.mjs"
+import {grid, gridCSS} from "./grid.mjs"
+import {axis, axisCSS} from "./axis.mjs"
+import {tooltip, tooltipCSS} from "./tooltip.mjs"
 
 
 let toast		// tasty but unhealthy
+
+// for all charts. refactor if neccessary that each chart gets their own CSS.
+document.head.insertAdjacentHTML("beforeend", gridCSS()+axisCSS()+tooltipCSS())
 
 
 class Contexts {
@@ -69,11 +76,11 @@ class Contexts {
 	static add(context) {
 
 		context.upsert = function(that) {
-			Object.assign(this,that)
+			Object.assign(this,that)		// keep, update from "that" or insert from "that"
 			return this
 		}
 
-		context.updateColors = function(cols) {	// see "usage of function init" palette & fixColors on what this is supposed to do
+		context.applyColorsToSeries = function(cols) {	// see "usage of function init" palette & fixColors on what this is supposed to do
 			this.colors = new Map()
 			const currentlySelectedSeriesKeys = getSeriesKeys(cols)
 			let idx = 0
@@ -91,7 +98,6 @@ class Contexts {
 	}
 	static has(id) { return this.states.has(id) }
 	static get(id) { return this.states.get(id) }
-
 }
 
 function getSeries(cols) { return cols.slice(1) }		// col array w/o 1st entry (also an array) yields all series' keys+data (see also head comment)
@@ -109,9 +115,6 @@ export function init(cfg) {
 			})
 		)
 	} else {
-
-		document.head.insertAdjacentHTML("beforeend", chartCSS())
-
 		connectLegend(
 			updateChart(getSeries(cfg.cols),
 				createChart(
@@ -130,7 +133,7 @@ export function init(cfg) {
 							palette: cfg.palette,
 							fixColors: cfg.fixColors
 						}),
-					cfg.type, getCategories(cfg.cols), cfg.cols
+					cfg.type
 				)
 			)
 		)
@@ -146,7 +149,7 @@ export function init(cfg) {
 }
 
 
-function createChart(context, type, categories, cols) {		// using billboard.js
+function createChart(context, type) {		// using billboard.js
 
 	const cfg = {
 		bindto: "#"+context.id,
@@ -156,7 +159,7 @@ function createChart(context, type, categories, cols) {		// using billboard.js
 			color: (_, d) => { return context.colors.get(d.id) },
 		},
 		grid: grid(),
-		axis: axis(categories, context.isRotated),
+		axis: axis(context.categories, context.isRotated, context.id),
 		tooltip: tooltip(context),
 		onresized: function() {
 			displayMissingDataInLegend(context.currentCols, context.uniquePrefix)
@@ -180,10 +183,10 @@ function createChart(context, type, categories, cols) {		// using billboard.js
 }
 
 export function updateChart(cols, context) {
-	context.updateColors(cols)
+	context.applyColorsToSeries(cols)
 
 	context.chart.load({
-		// unload: getDiff(context.currentCols, cols), 	// smooth transition. sadly, doesn't correctly order legend. 
+		//unload: getDiff(context.currentCols, cols), 	// smooth transition. sadly, doesn't correctly order legend. 
 		unload: true, 									// unsmooth but order correctly
 		columns: cols,
 		categories: context.categories,
