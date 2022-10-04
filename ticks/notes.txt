@@ -1,0 +1,25 @@
+/*
+
+area of conflict: "avoid label overlap" vs. "not enough labels".
+resolve by controlling #ticks and #ticks in between each label.
+
+
+                    for all (widths, #Values) -> (#Ticks, #Ticks in between each label)
+
+                                                │
+                                                │ some configuring params
+                                                │
+                                                │
+                            ┌───────────────────▼──────────────────────┐
+   available draw width     │                                          │
+                            │                                          │      [] of ticks to draw
+─────────────────────────►  │     implementation                       │   ─────────────────────────►
+                            │     of                                   │
+   number of values         │     chart.axis.x.tick.{values,format}    │      getter for tick text
+                            │                                          │
+─────────────────────────►  │                                          │   ─────────────────────────►
+                            │                                          │
+                            └──────────────────────────────────────────┘
+
+
+*/
