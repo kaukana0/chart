@@ -2,7 +2,7 @@ import {getTickIndices, shouldDrawLabel} from "./ticks/ticksAlt2.mjs"
 
 
 const state = {
-	zwickel: true,	//flipFlop
+	flipFlop: true,
 	labelCount: 0	
 }
 
@@ -31,12 +31,12 @@ export function axis(categories, isRotated, domId) {
 				// this depends on "values" - only for indices contained in values this is being called - so, no tick, no text.
 				// this is being called twice - no idea why...
 				format: function(index, categoryName) {
-						if(state.zwickel) {
-							state.zwickel = false
+						if(state.flipFlop) {
+							state.flipFlop = false
 							return	// this fct is called twice, the first of which has no influence on anything visual...
 						} else {
 							const noCategories = this.internal.config.axis_x_categories.length	// can't use "categories.length", it's always the value of the initial axis() call
-							state.zwickel = true
+							state.flipFlop = true
 							state.labelCount += 1
 							if( shouldDrawLabel(state.labelCount, noCategories, width()) ) {state.labelCount = 0}
 							return state.labelCount === 0 ? categoryName : ""
