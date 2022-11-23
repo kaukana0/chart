@@ -53,7 +53,12 @@ export function displayMissingDataInLegend(cols, uniquePrefix) {
 	cols.forEach(col => {
 		const allValuesNull = col.slice(1).every(el => el === null)
 		if (allValuesNull) {
-			document.getElementById(uniquePrefix + col[0]).setAttribute("style", "border-color: lightgrey; text-decoration: line-through;")
+			const el = document.getElementById(uniquePrefix + col[0])
+			if(el) {
+				el.setAttribute("style", "border-color: lightgrey; text-decoration: line-through;")
+			} else {
+				console.warn("legend: no element " + uniquePrefix + col[0])
+			}
 		} else {
 			someDataExists = true
 		}
