@@ -3,7 +3,7 @@ A chart is a billboard.js DOM element.
 This module can handle multiple such charts.
 Each chart gets it's own context, containing the state of all it's relevant configurations.
 
-depends on: d3js v6, billboardjs v3, bootstrap 5 (toast)
+depends on: d3js v6, billboardjs v3
 
 
 Some definitions:
@@ -53,18 +53,16 @@ cfg = {
 	isRotated: ,				// true makes it vertical and changes some visual details
 	palette: ,					// array containing colors which are applied to currently selected series (by a simple algorithm: front to back - first entry, first color of palette, 2nd-2nd and so forth)
 	fixColors: ,				// a map, overriding palette colors mechanism by assigning colors for specified series entries
+	alertMessage:				// an object implementing show() and hide(). a disappear timeout is expected.
 }
 
 */
 
 import {legend, displayMissingDataInLegend, addLegendKeyboardNavigability, legendCSS, setChartInterface} from "./legend.mjs"
-import {toastHtml, toastCSS} from "./toast.mjs"
 import {grid, gridCSS} from "./grid.mjs"
 import {axis, axisCSS} from "./axis.mjs"
 import {tooltip, tooltipCSS} from "./tooltip.mjs"
 
-
-let toast		// tasty but unhealthy
 
 // for all charts. refactor if neccessary that each chart gets their own CSS.
 document.head.insertAdjacentHTML("beforeend", gridCSS()+axisCSS()+tooltipCSS())
@@ -107,12 +105,16 @@ function getCategories(cols) { return cols[0] }
 
 export function init(cfg) {
 	if(Contexts.has(cfg.chartDOMElementId)) {
-		toast.hide()
-		updateChart(getSeries(cfg.cols), Contexts.get(cfg.chartDOMElementId).upsert({
-				categories: getCategories(cfg.cols),
-				suffixText: cfg.suffixText,
-				seriesLabels: cfg.seriesLabels
-			})
+		if(cfg.alertMessage) {
+			cfg.alertMessage.hide()
+		}
+		updateChart(getSeries(cfg.cols),
+				Contexts.get(cfg.chartDOMElementId).upsert({
+					categories: getCategories(cfg.cols),
+					suffixText: cfg.suffixText,
+					seriesLabels: cfg.seriesLabels
+				}),
+				cfg.alertMessage
 		)
 	} else {
 		connectLegend(
@@ -131,17 +133,16 @@ export function init(cfg) {
 							currentCols: [],
 							onFinished: cfg.onFinished,
 							palette: cfg.palette,
-							fixColors: cfg.fixColors
+							fixColors: cfg.fixColors,
+							alertMessage: cfg.alertMessage
 						}),
 					cfg.type
 				)
 			)
 		)
 
-		if(toast) {
-			toast.hide()
-		} else {
-			toast = createToast(Contexts.get(cfg.chartDOMElementId).uniquePrefix)	// any uniquePrefix would do really; just take from 1st chart out of convenience
+		if(cfg.alertMessage) {
+			cfg.alertMessage.hide()
 		}
 
 		makeTooltipDismissable(cfg.chartDOMElementId)
@@ -182,7 +183,7 @@ function createChart(context, type) {		// using billboard.js
 	return context
 }
 
-export function updateChart(cols, context) {
+export function updateChart(cols, context, alertMessage) {
 	context.applyColorsToSeries(cols)
 
 	context.chart.load({
@@ -192,7 +193,9 @@ export function updateChart(cols, context) {
 		categories: context.categories,
 		done: function () {
 			if(!displayMissingDataInLegend(cols, context.uniquePrefix)) {
-				toast.show()	// disappears by itself
+				if(alertMessage) {
+					alertMessage.show()		// expected to disappear without user-interaction after a timeout
+				}
 			}
 			//addLegendKeyboardNavigability(chart.legendDOMElementId)
 			context.onFinished()
@@ -222,12 +225,6 @@ function getDiff(currentCols, newCols) {
 	return retVal
 }
 
-function createToast(uniquePrefix) {
-	document.body.insertAdjacentHTML("beforeend", toastHtml(uniquePrefix + "toast"))
-	document.head.insertAdjacentHTML("beforeend", toastCSS(uniquePrefix + "toast"))
-	return new bootstrap.Toast(document.getElementById(uniquePrefix + "toast"))
-}
-
 function connectLegend(context) {
 	setChartInterface({
 		focus: function(p) {context.chart.focus(p)}, 
@@ -243,4 +240,8 @@ function makeTooltipDismissable(chartDOMElementId) {
 			Contexts.get(chartDOMElementId).chart.tooltip.hide()
 		}
 	})
+}
+
+export function resize(w, h) {
+	Contexts.get("chart").chart.resize({width: w, height: h})
 }
