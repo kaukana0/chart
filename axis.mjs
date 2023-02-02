@@ -23,7 +23,7 @@ export function axis(categories, isRotated, domId) {
 				// without defining this explicitly, there'd be too many ticks on narrow screens
 				values: function() {
 					const noCategories = this.internal.config.axis_x_categories.length	// can't use "categories.length", it's always the value of the initial axis() call
-					return getTickIndices(noCategories, width())
+					return getTickIndices(noCategories, domId.clientWidth)
 				},
 
 				// this is a misnomer (in this situation).
@@ -38,7 +38,7 @@ export function axis(categories, isRotated, domId) {
 							const noCategories = this.internal.config.axis_x_categories.length	// can't use "categories.length", it's always the value of the initial axis() call
 							state.flipFlop = true
 							state.labelCount += 1
-							if( shouldDrawLabel(state.labelCount, noCategories, width()) ) {state.labelCount = 0}
+							if( shouldDrawLabel(state.labelCount, noCategories, domId.clientWidth) ) {state.labelCount = 0}
 							return state.labelCount === 0 ? categoryName : ""
 					}
 				}
@@ -51,8 +51,6 @@ export function axis(categories, isRotated, domId) {
 			}
 		}
 	}
-
-	function width() {return document.getElementById(domId).clientWidth }
 
 	if(isRotated) {
 		retVal["rotated"]=true

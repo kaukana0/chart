@@ -83,14 +83,17 @@ class Contexts {
 			const currentlySelectedSeriesKeys = getSeriesKeys(cols)
 			let idx = 0
 			currentlySelectedSeriesKeys.forEach( (e) => {
-				if(this.fixColors[e]) {
+				if(this.fixColors && this.fixColors[e]) {
 					this.colors.set(e, this.fixColors[e])
 				} else {
-					this.colors.set(e, this.palette[idx++])
+					if(this.palette) {
+						this.colors.set(e, this.palette[idx++])
+					} else {
+						console.warn("chart: no palette and no fixed colors defined")
+					}
 				}
 			})
 		}
-
 		this.states.set(context.id, context)
 		return context
 	}
@@ -153,7 +156,7 @@ export function init(cfg) {
 function createChart(context, type) {		// using billboard.js
 
 	const cfg = {
-		bindto: "#"+context.id,
+		bindto: context.id,
 		data: {
 			columns: [],
 			type: type,
@@ -183,7 +186,7 @@ function createChart(context, type) {		// using billboard.js
 	return context
 }
 
-export function updateChart(cols, context, alertMessage) {
+function updateChart(cols, context, alertMessage) {
 	context.applyColorsToSeries(cols)
 
 	context.chart.load({
@@ -198,7 +201,7 @@ export function updateChart(cols, context, alertMessage) {
 				}
 			}
 			//addLegendKeyboardNavigability(chart.legendDOMElementId)
-			context.onFinished()
+			if(context.onFinished) {context.onFinished()}
 		}
 	})
 
@@ -207,10 +210,6 @@ export function updateChart(cols, context, alertMessage) {
 	context.chart.focus()	// avoid blurring when changing selection while something is focussed
 
 	return context
-}
-
-export function setYLabel(chartDOMElementId, text) {
-	Contexts.get(chartDOMElementId).chart.axis.labels({ y: text })
 }
 
 // which of currentCols are not in newCols? returns array.
@@ -242,6 +241,10 @@ function makeTooltipDismissable(chartDOMElementId) {
 	})
 }
 
-export function resize(w, h) {
-	Contexts.get("chart").chart.resize({width: w, height: h})
+export function setYLabel(chartDOMElementId, text) {
+	Contexts.get(chartDOMElementId).chart.axis.labels({ y: text })
+}
+
+export function resize(chartDOMElementId, w, h) {
+	Contexts.get(chartDOMElementId).chart.resize({width: w, height: h})
 }

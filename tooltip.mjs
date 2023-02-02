@@ -8,13 +8,11 @@ export function tooltip(context) {
 
 		// misnomer: it's not a format, it's actual content...
 		format: {
-			name: function (name, ratio, id, index) { return context.seriesLabels.get(id) },
-			value: function (value, ratio, id, index) { 
-				return Number(value).toFixed(1) + context.suffixText 
-			},
+			name: (name, ratio, id, index) => context.seriesLabels ? context.seriesLabels.get(id) : "",
+			value: (value, ratio, id, index) => Number(value).toFixed(1) + (context.suffixText?context.suffixText:""),
 			// we have to take it from the context, because weirdly, by default, the title is
 			// the tickmark label and if a tickmark doesn't have one, title is missing in the tooltip :-/
-			title: function(x) { return context.categories[x] }
+			title: (x) => context.categories?context.categories[x]:""
 		}
 	}	
 }
