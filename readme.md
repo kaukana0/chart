@@ -1,5 +1,7 @@
 # usage
 
+note: see comment in chart.mjs for more details
+
 ## html
 
 	<script src="./components/chartCard/chartCard.mjs" type="module"></script>

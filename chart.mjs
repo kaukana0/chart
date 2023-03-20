@@ -52,6 +52,7 @@ cfg = {
 	suffixText: ,				// for display in tooltip
 	isRotated: ,				// true makes it vertical and changes some visual details
 	palette: ,					// array containing colors which are applied to currently selected series (by a simple algorithm: front to back - first entry, first color of palette, 2nd-2nd and so forth)
+											// note: can be set only one time
 	fixColors: ,				// a map, overriding palette colors mechanism by assigning colors for specified series entries
 	alertMessage:				// an object implementing show() and hide(). a disappear timeout is expected.
 }
