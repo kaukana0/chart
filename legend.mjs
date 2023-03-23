@@ -7,11 +7,11 @@ export function setChartInterface(_chartInterface) {
 	chartInterface = _chartInterface
 }
 
-export function legend(DOMElementId, uniquePrefix) {
+export function legend(DOMElement, uniquePrefix) {
 	return {
 		position: "right",
 		contents: {
-			bindto: "#" + DOMElementId,
+			bindto: DOMElement,
 			template: function (title, _) {
 				// when chart.data specifies "color" instead of "colors",
 				// initially this callback's second arg is undefined and all legend colors become black.
@@ -68,9 +68,9 @@ export function displayMissingDataInLegend(cols, uniquePrefix) {
 }
 
 
-export function addLegendKeyboardNavigability(DOMElementId) {
+export function addLegendKeyboardNavigability(DOMElement) {
 	// all span children under the element with given selector
-	document.querySelector(DOMElementId).querySelectorAll("span")
+	DOMElement.querySelectorAll("span")
 	.forEach( e => {e.addEventListener("keydown", ke => {
 			if(ke.keyCode==13) {
 				ke.target.click()
