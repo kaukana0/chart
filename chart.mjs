@@ -168,8 +168,8 @@ function createChart(context, type) {		// using billboard.js
 		tooltip: tooltip(context),
 		onresized: function() {
 			displayMissingDataInLegend(context.currentCols, context.uniquePrefix)
-		}
-	
+		},
+		bubble: {maxR:4}
 	}
 
 	if(context.legendDOMElementId) {
@@ -243,9 +243,13 @@ function makeTooltipDismissable(chartDOMElementId) {
 }
 
 export function setYLabel(chartDOMElementId, text) {
-	Contexts.get(chartDOMElementId).chart.axis.labels({ y: text })
+	if(Contexts.get(chartDOMElementId)) {
+		Contexts.get(chartDOMElementId).chart.axis.labels({ y: text })
+	}
 }
 
 export function resize(chartDOMElementId, w, h) {
-	Contexts.get(chartDOMElementId).chart.resize({width: w, height: h})
+	if(Contexts.get(chartDOMElementId)) {
+		Contexts.get(chartDOMElementId).chart.resize({width: w, height: h})
+	}
 }
