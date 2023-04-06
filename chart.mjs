@@ -138,7 +138,8 @@ export function init(cfg) {
 							onFinished: cfg.onFinished,
 							palette: cfg.palette,
 							fixColors: cfg.fixColors,
-							alertMessage: cfg.alertMessage
+							alertMessage: cfg.alertMessage,
+							showLines: typeof(cfg.showLines)!=="undefined"?cfg.showLines:true
 						}),
 					cfg.type
 				)
@@ -168,8 +169,23 @@ function createChart(context, type) {		// using billboard.js
 		tooltip: tooltip(context),
 		onresized: function() {
 			displayMissingDataInLegend(context.currentCols, context.uniquePrefix)
-		},
-		bubble: {maxR:4}
+		}
+	}
+
+	if(!context.showLines) {
+		Object.assign(cfg, {
+			point: {
+				pattern: [
+		//				"<polygon points='2.5 0 0 2.5 2.5 5 5 2.5 2.5 0'></polygon>"
+					"<circle r='6'></circle>"
+				]
+			},
+			line: {
+				classes: [
+					"hide-line"
+				]
+			}
+		})
 	}
 
 	if(context.legendDOMElementId) {
