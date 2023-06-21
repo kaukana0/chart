@@ -59,6 +59,7 @@ cfg = {
 
 */
 
+//import * as d3 from "./../../redist/
 import {legend, displayMissingDataInLegend, addLegendKeyboardNavigability, legendCSS, setChartInterface} from "./legend.mjs"
 import {grid, gridCSS} from "./grid.mjs"
 import {axis, axisCSS} from "./axis.mjs"
@@ -154,6 +155,32 @@ export function init(cfg) {
 	}
 }
 
+// -100 to +100
+function shadeColor(color, percent) {
+	if(!color) return "#000000"
+
+	var R = parseInt(color.substring(1,3),16);
+	var G = parseInt(color.substring(3,5),16);
+	var B = parseInt(color.substring(5,7),16);
+
+	R = parseInt(R * (100 + percent) / 100);
+	G = parseInt(G * (100 + percent) / 100);
+	B = parseInt(B * (100 + percent) / 100);
+
+	R = (R<255)?R:255;  
+	G = (G<255)?G:255;  
+	B = (B<255)?B:255;  
+
+	R = Math.round(R)
+	G = Math.round(G)
+	B = Math.round(B)
+
+	var RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
+	var GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
+	var BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
+
+	return "#"+RR+GG+BB;
+}
 
 function createChart(context, type) {		// using billboard.js
 
@@ -162,30 +189,26 @@ function createChart(context, type) {		// using billboard.js
 		data: {
 			columns: [],
 			type: type,
-			color: (_, d) => { return context.colors.get(d.id) },
+			color: (_, d) => { 
+				//console.log(d, context.colors.get(d.id) )
+				return shadeColor(context.colors.get(d.id), d.index===5?0:0)
+			},
 		},
 		grid: grid(),
 		axis: axis(context.categories, context.isRotated, context.id),
 		tooltip: tooltip(context),
 		onresized: function() {
 			displayMissingDataInLegend(context.currentCols, context.uniquePrefix)
-		}
+		},
+		point: {pattern:[]},
+		line: {classes:[]}
 	}
 
-	if(!context.showLines) {
-		Object.assign(cfg, {
-			point: {
-				pattern: [
-		//				"<polygon points='2.5 0 0 2.5 2.5 5 5 2.5 2.5 0'></polygon>"
-					"<circle r='6'></circle>"
-				]
-			},
-			line: {
-				classes: [
-					"hide-line"
-				]
-			}
-		})
+	if(context.showLines) {
+		cfg.line.classes.push("thick-line")
+	} else {
+		cfg.line.classes.push("hide-line")
+		cfg.point.pattern.push("<circle r='6' cx='6' cy='6'></circle>")
 	}
 
 	if(context.legendDOMElementId) {
@@ -219,6 +242,7 @@ function updateChart(cols, context, alertMessage) {
 			}
 			//addLegendKeyboardNavigability(chart.legendDOMElementId)
 			if(context.onFinished) {context.onFinished()}
+			drawScatterLines()
 		}
 	})
 
@@ -261,6 +285,8 @@ function makeTooltipDismissable(chartDOMElementId) {
 export function setYLabel(chartDOMElementId, text) {
 	if(Contexts.get(chartDOMElementId)) {
 		Contexts.get(chartDOMElementId).chart.axis.labels({ y: text })
+	} else {
+		console.warn("chart: no chart, can't set yLabel")
 	}
 }
 
@@ -268,4 +294,65 @@ export function resize(chartDOMElementId, w, h) {
 	if(Contexts.get(chartDOMElementId)) {
 		Contexts.get(chartDOMElementId).chart.resize({width: w, height: h})
 	}
+}
+
+
+/*
+TODO: rewrite this original code as vanilla JS
+
+green
+document.querySelector("#chartCard-Migrant-population-share").shadowRoot.querySelector("#chart2 > svg > g > g.bb-chart > g.bb-chart-lines > g.bb-chart-line.bb-target.bb-target-NAT > g.bb-shapes.bb-shapes-NAT.bb-circles.bb-circles-NAT > use.bb-shape.bb-shape-21.bb-circle.bb-circle-21")
+
+pink
+document.querySelector("#chartCard-Migrant-population-share").shadowRoot.querySelector("#chart2 > svg > g > g.bb-chart > g.bb-chart-lines > g.bb-chart-line.bb-target.bb-target-EU-FOR > g.bb-shapes.bb-shapes-EU-FOR.bb-circles.bb-circles-EU-FOR > use.bb-shape.bb-shape-25.bb-circle.bb-circle-25")
+*/
+function drawScatterLines() {
+
+	return
+
+	$(".dotLine").remove();
+	var svg
+	var lineFunction = d3.line()
+			.x(function (d) { return d.x; })
+			.y(function (d) { return d.y; })
+
+	for (var i = 0; i < data.length; i++) {
+		console.log("D")
+
+			var iterator = 0;
+			var xSaved = 0;
+			var circleCoords = [];
+			var line = d3.line()
+			var nodes = d3.selectAll(".bb-circle-" + i)
+					.each(function (d) {
+
+							var item = d3.select(this);
+							var visible = displayed.indexOf(d.id) !== -1;
+
+							if (d.value != null && d.value != 0 && visible) {
+									var xPadding = window.innerWidth < 600 ? 3 : 7;
+									var yPadding = window.innerWidth < 600 ? 3 : 7;
+									var cx = $(this).attr('cx') ? $(this).attr('cx') : parseFloat($(this).attr('x')) + xPadding;
+
+									var cy = $(this).attr('cy') ? $(this).attr('cy') : parseFloat($(this).attr('y')) + yPadding;
+									circleCoords.push({ x: cx, y: cy });
+							}
+							if (indicators[currentCategory].removeZeroValue && d.value == 0) {
+									this.remove();
+							}
+							if (d.id == "undefined") {
+									this.remove();
+							}
+							iterator++;
+					});
+
+			svg = d3.selectAll("#chart svg .bb-chart-lines")
+
+			var lineGraph = svg.append("path")
+					.attr("d", lineFunction(circleCoords))
+					.attr("class", "dotLine")
+					.moveToBack();
+
+	}
+
 }

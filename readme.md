@@ -32,7 +32,7 @@ note: see comment in chart.mjs for more details
 		chartDOMElementId: getElementById("..."),
 		legendDOMElementId: getElementById("..."),
 		cols: cols,
-		fixColors: {},
+		fixColors: {"EU":"#0e47cb"},
 		palette: ["#069F73", "#CC79A7"],
 		seriesLabels: labels,
 		suffixText: "%",

@@ -22,7 +22,11 @@ export function tooltipCSS() {
 <style>
 
 .bb-tooltip th {
-  background: black;
+	font-size: 1.2rem;
+  background: #333;
+	text-align: right;
+	padding-top: 5px;
+	padding-bottom: 5px;
 }
 
 .bb-tooltip tbody tr td.value {

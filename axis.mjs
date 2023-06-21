@@ -66,7 +66,7 @@ export function axis(categories, isRotated, domId) {
 
 
 
-
+// TODO: hide-line doesn't belong here!
 export function axisCSS() {
     return `
 <style>
@@ -74,6 +74,7 @@ export function axisCSS() {
 .bb-axis-y-label {
   font-size: 1rem;
 }
+.hide-line { stroke-width: 0px; }
 
 </style>
 `
