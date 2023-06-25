@@ -199,6 +199,7 @@ function createChart(context, type) {		// using billboard.js
 		tooltip: tooltip(context),
 		onresized: function() {
 			displayMissingDataInLegend(context.currentCols, context.uniquePrefix)
+			if(context.onResized) {context.onResized()}
 		},
 		point: {pattern:[]},
 		line: {classes:[]}
@@ -290,8 +291,11 @@ export function setYLabel(chartDOMElementId, text) {
 	}
 }
 
-export function resize(chartDOMElementId, w, h) {
+export function resize(chartDOMElementId, w, h, callback) {
 	if(Contexts.get(chartDOMElementId)) {
+		if(callback) {
+			Contexts.get(chartDOMElementId).upsert({onResized: callback})
+		}
 		Contexts.get(chartDOMElementId).chart.resize({width: w, height: h})
 	}
 }
