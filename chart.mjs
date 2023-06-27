@@ -63,11 +63,11 @@ cfg = {
 import {legend, displayMissingDataInLegend, addLegendKeyboardNavigability, legendCSS, setChartInterface} from "./legend.mjs"
 import {grid, gridCSS} from "./grid.mjs"
 import {axis, axisCSS} from "./axis.mjs"
-import {tooltip, tooltipCSS} from "./tooltip.mjs"
+import {tooltip, tooltipCSS} from "./tooltip.mjs"		// the default one. can be overwritten w/ project specific impl'
 
 
 // for all charts. refactor if neccessary that each chart gets their own CSS.
-document.head.insertAdjacentHTML("beforeend", gridCSS()+axisCSS()+tooltipCSS())
+document.head.insertAdjacentHTML("beforeend", gridCSS()+axisCSS())
 
 
 class Contexts {
@@ -140,7 +140,8 @@ export function init(cfg) {
 							palette: cfg.palette,
 							fixColors: cfg.fixColors,
 							alertMessage: cfg.alertMessage,
-							showLines: typeof(cfg.showLines)!=="undefined"?cfg.showLines:true
+							showLines: typeof(cfg.showLines)!=="undefined"?cfg.showLines:true,
+							tooltipFn: typeof(cfg.tooltipFn)!=="undefined"?cfg.tooltipFn:null
 						}),
 					cfg.type
 				)
@@ -184,6 +185,10 @@ function shadeColor(color, percent) {
 
 function createChart(context, type) {		// using billboard.js
 
+	if(!context.tooltipFn) {
+		document.head.insertAdjacentHTML("beforeend", tooltipCSS())
+	}
+
 	const cfg = {
 		bindto: context.id,
 		data: {
@@ -196,7 +201,7 @@ function createChart(context, type) {		// using billboard.js
 		},
 		grid: grid(),
 		axis: axis(context.categories, context.isRotated, context.id),
-		tooltip: tooltip(context),
+		tooltip: context.tooltipFn ? context.tooltipFn(context) : tooltip(context),
 		onresized: function() {
 			displayMissingDataInLegend(context.currentCols, context.uniquePrefix)
 			if(context.onResized) {context.onResized()}
