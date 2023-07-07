@@ -7,7 +7,7 @@ const state = {
 }
 
 
-export function axis(categories, isRotated, domId) {
+export function axis(categories, isRotated, domId, labelEveryTick) {
 	
 	const retVal = {
 		x: {
@@ -16,6 +16,8 @@ export function axis(categories, isRotated, domId) {
 			tick: {
 				centered: true,
 				multiline: false,
+				//autorotate: true,
+				//rotate: 15,
 
 				// this is a misnomer (in this situation).
 				// it actually defines for which values to draw a tickmark.
@@ -31,6 +33,9 @@ export function axis(categories, isRotated, domId) {
 				// this depends on "values" - only for indices contained in values this is being called - so, no tick, no text.
 				// this is being called twice - no idea why...
 				format: function(index, categoryName) {
+					if(labelEveryTick) {
+						return categoryName 
+					} else {
 						if(state.flipFlop) {
 							state.flipFlop = false
 							return	// this fct is called twice, the first of which has no influence on anything visual...
@@ -40,8 +45,10 @@ export function axis(categories, isRotated, domId) {
 							state.labelCount += 1
 							if( shouldDrawLabel(state.labelCount, noCategories, domId.clientWidth) ) {state.labelCount = 0}
 							return state.labelCount === 0 ? categoryName : ""
+						}
 					}
 				}
+
 			}
 		},
 		y: {

@@ -117,7 +117,8 @@ export function init(cfg) {
 				Contexts.get(cfg.chartDOMElementId).upsert({
 					categories: getCategories(cfg.cols),
 					suffixText: cfg.suffixText,
-					seriesLabels: cfg.seriesLabels
+					seriesLabels: cfg.seriesLabels,
+					fixColors: cfg.fixColors
 				}),
 				cfg.alertMessage
 		)
@@ -141,7 +142,8 @@ export function init(cfg) {
 							fixColors: cfg.fixColors,
 							alertMessage: cfg.alertMessage,
 							showLines: typeof(cfg.showLines)!=="undefined"?cfg.showLines:true,
-							tooltipFn: typeof(cfg.tooltipFn)!=="undefined"?cfg.tooltipFn:null
+							tooltipFn: typeof(cfg.tooltipFn)!=="undefined"?cfg.tooltipFn:null,
+							labelEveryTick: cfg.labelEveryTick
 						}),
 					cfg.type
 				)
@@ -194,13 +196,14 @@ function createChart(context, type) {		// using billboard.js
 		data: {
 			columns: [],
 			type: type,
-			color: (_, d) => { 
+			color: (x, d) => { 
+				//console.log(x,d)
 				//console.log(d, context.colors.get(d.id) )
 				return shadeColor(context.colors.get(d.id), d.index===5?0:0)
 			},
 		},
 		grid: grid(),
-		axis: axis(context.categories, context.isRotated, context.id),
+		axis: axis(context.categories, context.isRotated, context.id, context.labelEveryTick),
 		tooltip: context.tooltipFn ? context.tooltipFn(context) : tooltip(context),
 		onresized: function() {
 			displayMissingDataInLegend(context.currentCols, context.uniquePrefix)
@@ -292,7 +295,7 @@ export function setYLabel(chartDOMElementId, text) {
 	if(Contexts.get(chartDOMElementId)) {
 		Contexts.get(chartDOMElementId).chart.axis.labels({ y: text })
 	} else {
-		console.warn("chart: no chart, can't set yLabel")
+		console.debug("chart: no chart in DOM, can't set yLabel")
 	}
 }
 
