@@ -303,8 +303,19 @@ export function resize(chartDOMElementId, w, h, callback) {
 	if(Contexts.get(chartDOMElementId)) {
 		if(callback) {
 			Contexts.get(chartDOMElementId).upsert({onResized: callback})
+		} else {
+			Contexts.get(chartDOMElementId).upsert({onResized: null})
 		}
 		Contexts.get(chartDOMElementId).chart.resize({width: w, height: h})
+	}
+}
+
+export function getUniqueId(chartDOMElementId) {
+	if(Contexts.get(chartDOMElementId)) {
+		return Contexts.get(chartDOMElementId).uniquePrefix
+	} else {
+		console.error("chart: id not found in contexts", chartDOMElementId)
+		return ""
 	}
 }
 
@@ -368,3 +379,4 @@ function drawScatterLines() {
 	}
 
 }
+
