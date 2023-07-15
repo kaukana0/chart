@@ -196,11 +196,7 @@ function createChart(context, type) {		// using billboard.js
 		data: {
 			columns: [],
 			type: type,
-			color: (x, d) => { 
-				//console.log(x,d)
-				//console.log(d, context.colors.get(d.id) )
-				return shadeColor(context.colors.get(d.id), d.index===5?0:0)
-			},
+			color: (_, d) => context.colors.get(d.id),
 		},
 		grid: grid(),
 		axis: axis(context.categories, context.isRotated, context.id, context.labelEveryTick),
@@ -251,7 +247,7 @@ function updateChart(cols, context, alertMessage) {
 			}
 			//addLegendKeyboardNavigability(chart.legendDOMElementId)
 			if(context.onFinished) {context.onFinished()}
-			drawScatterLines()
+			//drawScatterLines()
 		}
 	})
 
@@ -275,12 +271,13 @@ function getDiff(currentCols, newCols) {
 }
 
 function connectLegend(context) {
-	setChartInterface({
-		focus: function(p) {context.chart.focus(p)}, 
-		blur: function(p) {context.chart.defocus(p)},
-		getTooltipText: function(p) {return context.seriesLabels.get(p)},
-		getColor: function(key) {return context.colors.get(key)}
-	})
+		setChartInterface(context.uniquePrefix+"legend", 
+		{
+			focus: function(p) {context.chart.focus(p)}, 
+			blur: function(p) {context.chart.defocus(p)},
+			getSeriesLabel: function(p) {return context.seriesLabels.get(p)},
+			getColor: function(key) {return context.colors.get(key)}
+		})
 }
 
 function makeTooltipDismissable(chartDOMElementId) {
@@ -330,8 +327,6 @@ pink
 document.querySelector("#chartCard-Migrant-population-share").shadowRoot.querySelector("#chart2 > svg > g > g.bb-chart > g.bb-chart-lines > g.bb-chart-line.bb-target.bb-target-EU-FOR > g.bb-shapes.bb-shapes-EU-FOR.bb-circles.bb-circles-EU-FOR > use.bb-shape.bb-shape-25.bb-circle.bb-circle-25")
 */
 function drawScatterLines() {
-
-	return
 
 	$(".dotLine").remove();
 	var svg

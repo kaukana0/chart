@@ -1,10 +1,10 @@
 let currentSelection
-let chartInterface
+let chartInterface = {}
 
 
 // narrow interface; legend doesn't need to know more of the chart than just this
-export function setChartInterface(_chartInterface) {
-	chartInterface = _chartInterface
+export function setChartInterface(uniqueId, _chartInterface) {
+	chartInterface[uniqueId] = _chartInterface
 }
 
 export function legend(DOMElement, uniquePrefix) {
@@ -16,25 +16,31 @@ export function legend(DOMElement, uniquePrefix) {
 				// when chart.data specifies "color" instead of "colors",
 				// initially this callback's second arg is undefined and all legend colors become black.
 				// so, second arg (color) is useless in that case - maybe it's a billboard.js bug.
-				return `<span class="${uniquePrefix}" id="${uniquePrefix + title}" style="border-color: ${chartInterface.getColor(title)};" tabindex=0 title="${chartInterface.getTooltipText(title)}"> ${title} </span>`
+				const IF = chartInterface[uniquePrefix+"legend"]
+				const color = IF.getColor(title)
+				return `<div style="width:100%;">
+					<span class="coloredDot" style="background-color:${color};"></span>
+					<span class="bb-legend-item">${title}</span>
+				</div>`
 			}
 		},
 		item: {
 			// the one clicked stays as is (it's getting "focussed on"), while all others fade out a little bit
 			onclick: function (id) {
+				const IF = chartInterface[uniquePrefix+"legend"]
 				if (currentSelection) {
 					if (id == currentSelection) {
 						currentSelection = null
-						chartInterface.focus()
+						IF.focus()
 					} else {
 						currentSelection = id
-						chartInterface.blur()
-						window.requestAnimationFrame(() => chartInterface.focus(id))
+						IF.blur()
+						window.requestAnimationFrame(() => IF.focus(id))
 					}
 				} else {
 					currentSelection = id
-					chartInterface.focus()
-					window.requestAnimationFrame(() => chartInterface.focus(id))
+					IF.focus()
+					window.requestAnimationFrame(() => IF.focus(id))
 				}
 			},
 			onover: function (id) { },
