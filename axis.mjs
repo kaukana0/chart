@@ -55,7 +55,8 @@ export function axis(categories, isRotated, domId, labelEveryTick) {
 			label: {
 				text: "",   // see setYLabel()
 				position: "outer-middle"
-			}
+			},
+			tick: {show:false}		// TODO: make configurable
 		}
 	}
 
@@ -78,10 +79,35 @@ export function axisCSS() {
     return `
 <style>
 
-.bb-axis-y-label {
-  font-size: 1rem;
+.bb-axis-x{
+	font-size: 0.7rem;
+	stroke-width: 0.9px;
+	stroke: #6C7079;
+	stroke-opacity: 0.8;
+	font-family: Arial, sans-serif;
 }
+
+.bb-axis-y{
+	font-size: 0.7rem;
+	stroke-width: 0.6px;
+	stroke: #6C7079;
+	stroke-opacity: 1;
+	font-family: Arial, sans-serif;
+}
+
+.bb-axis-y path{ 
+	stroke-width: 0;	
+}
+
+.bb-axis-y-label {
+  font-size: 0.8rem;
+}
+
+
+
 .hide-line { stroke-width: 0px; }
+
+
 
 </style>
 `

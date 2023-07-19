@@ -11,11 +11,16 @@ export function gridCSS() {
     return `
 <style>
 
-  .bb-ygrid {
-	stroke-dasharray: 8 4;
-	shape-rendering: inherit;
+.bb-ygrid {
+	shape-rendering: auto;
   }
-  
-</style>
+
+	.bb-grid line {
+		stroke: #DEDFE0;
+		stroke-width: 2px;
+		stroke-dasharray: 2 4;
+	}
+
+	</style>
 `
 }
