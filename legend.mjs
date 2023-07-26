@@ -2,6 +2,56 @@ let currentSelection
 let chartInterface = {}
 
 
+/*
+this adapts the drawing of legend items to
+- some billboardjs black-box (undocumented) weirdness (counter1)
+- some business logic (counter2)
+
+counter1:
+the legend template function gets called multiple times.
+in some cases, the 2nd call is actually what's being displayed, sometimes the 1st.
+this is amended w/ resetting from outside, depending on the situation.
+it's determined empirically.
+
+counter2:
+we have groups of three items, for which only 1 legend element should be displayed.
+*/
+class Adapter {
+	static counter1 = new Map()
+	static counter2 = []
+	static drawWhen = 1
+	
+	static reset(drawWhen) {
+		this.counter1.clear()
+		this.counter2.length = 0
+		this.drawWhen = drawWhen
+	}
+
+	// only do it the n-the time
+	static cond1(k) {
+		if(this.counter1.has(k)) {
+			this.counter1.set(k, this.counter1.get(k)>=2?2:this.counter1.get(k)+1 )
+		} else {
+			this.counter1.set(k,0)
+		}
+		return this.counter1.get(k)===this.drawWhen
+	} 
+
+	// only do it 1 time
+	static cond2(k) {
+		if(this.counter2.includes(k)) {
+			return false
+		} else {
+			this.counter2.push(k)
+			return true
+		}
+	}
+}
+
+export function resetCounter(drawWhen=1) {
+	Adapter.reset(drawWhen)
+}
+
 // narrow interface; legend doesn't need to know more of the chart than just this
 export function setChartInterface(uniqueId, _chartInterface) {
 	chartInterface[uniqueId] = _chartInterface
@@ -18,10 +68,22 @@ export function legend(DOMElement, uniquePrefix) {
 				// so, second arg (color) is useless in that case - maybe it's a billboard.js bug.
 				const IF = chartInterface[uniquePrefix+"legend"]
 				const color = IF.getColor(title)
-				return `<div style="width:100%;">
-					<span class="coloredDot" style="background-color:${color};"></span>
-					<span class="bb-legend-item">${title}</span>
-				</div>`
+
+				// TODO: this stuff is project specific. The adapter too. get it out of here.
+				if(Adapter.cond1(title)) {
+					const titlePart = title.substring(0,2)
+					if(Adapter.cond2(titlePart)) {
+						return `<div style="width:100%; display:flex; align-items:center;">
+							<span class="coloredDot" style="background-color:${color}; margin-right:10px;"></span>
+							<span class="bb-legend-item" style="margin-bottom:8px;">${titlePart}</span>
+						</div>`
+					} else {
+						return `<div style="width:100%; height:0px; padding:0px;"></div>`
+					}
+				} else {
+					return `<div style="width:100%; height:0px;"></div>`
+				}
+
 			}
 		},
 		item: {
