@@ -60,7 +60,7 @@ cfg = {
 */
 
 //import * as d3 from "./../../redist/
-import {legend, displayMissingDataInLegend, addLegendKeyboardNavigability, legendCSS, setChartInterface} from "./legend.mjs"
+import {legend, displayMissingDataInLegend, addLegendKeyboardNavigability, legendCSS, setChartInterface, createAdapter} from "./legend.mjs"
 import {grid, gridCSS} from "./grid.mjs"
 import {axis, axisCSS} from "./axis.mjs"
 import {tooltip, tooltipCSS} from "./tooltip.mjs"		// the default one. can be overwritten w/ project specific impl'
@@ -197,6 +197,9 @@ function createChart(context, type) {		// using billboard.js
 			columns: [],
 			type: type,
 			color: (_, d) => context.colors.get(d.id),
+			onover: function(d, element) {
+					//console.log("over data",d,element)
+			}
 		},
 		grid: grid(),
 		axis: axis(context.categories, context.isRotated, context.id, context.labelEveryTick),
@@ -206,7 +209,10 @@ function createChart(context, type) {		// using billboard.js
 			if(context.onResized) {context.onResized()}
 		},
 		point: {pattern:[]},
-		line: {classes:[]}
+		line: {classes:[]},
+		onover: function(d, element) {
+//			console.log("over chart",d,element)
+	 }
 	}
 
 	if(context.showLines) {
@@ -273,11 +279,16 @@ function getDiff(currentCols, newCols) {
 function connectLegend(context) {
 		setChartInterface(context.uniquePrefix+"legend", 
 		{
-			focus: function(p) {context.chart.focus(p)}, 
+			//focus: function(p) {console.log(p);context.chart.focus(p)}, 
+			focus: function(p) {
+				//console.log(p, context.currentCols)
+				context.chart.focus(p)
+			}, 
 			blur: function(p) {context.chart.defocus(p)},
 			getSeriesLabel: function(p) {return context.seriesLabels.get(p)},
 			getColor: function(key) {return context.colors.get(key)}
 		})
+		createAdapter(context.uniquePrefix)
 }
 
 function makeTooltipDismissable(chartDOMElementId) {

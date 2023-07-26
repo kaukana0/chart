@@ -1,5 +1,6 @@
 let currentSelection
 let chartInterface = {}
+let adapters = []
 
 
 /*
@@ -17,18 +18,18 @@ counter2:
 we have groups of three items, for which only 1 legend element should be displayed.
 */
 class Adapter {
-	static counter1 = new Map()
-	static counter2 = []
-	static drawWhen = 1
+	counter1 = new Map()
+	counter2 = []
+	drawWhen = 1
 	
-	static reset(drawWhen) {
+	reset(drawWhen) {
 		this.counter1.clear()
 		this.counter2.length = 0
 		this.drawWhen = drawWhen
 	}
 
 	// only do it the n-the time
-	static cond1(k) {
+	cond1(k) {
 		if(this.counter1.has(k)) {
 			this.counter1.set(k, this.counter1.get(k)>=2?2:this.counter1.get(k)+1 )
 		} else {
@@ -38,7 +39,7 @@ class Adapter {
 	} 
 
 	// only do it 1 time
-	static cond2(k) {
+	cond2(k) {
 		if(this.counter2.includes(k)) {
 			return false
 		} else {
@@ -48,14 +49,20 @@ class Adapter {
 	}
 }
 
-export function resetCounter(drawWhen=1) {
-	Adapter.reset(drawWhen)
+export function resetCounter(uniqueId, drawWhen=1) {
+	adapters[uniqueId].reset(drawWhen)
+}
+
+export function createAdapter(uniqueId) {
+	adapters[uniqueId] = new Adapter()
 }
 
 // narrow interface; legend doesn't need to know more of the chart than just this
 export function setChartInterface(uniqueId, _chartInterface) {
 	chartInterface[uniqueId] = _chartInterface
 }
+
+
 
 export function legend(DOMElement, uniquePrefix) {
 	return {
@@ -70,9 +77,9 @@ export function legend(DOMElement, uniquePrefix) {
 				const color = IF.getColor(title)
 
 				// TODO: this stuff is project specific. The adapter too. get it out of here.
-				if(Adapter.cond1(title)) {
+				if(adapters[uniquePrefix].cond1(title)) {
 					const titlePart = title.substring(0,2)
-					if(Adapter.cond2(titlePart)) {
+					if(adapters[uniquePrefix].cond2(titlePart)) {
 						return `<div style="width:100%; display:flex; align-items:center;">
 							<span class="coloredDot" style="background-color:${color}; margin-right:10px;"></span>
 							<span class="bb-legend-item" style="margin-bottom:8px;">${titlePart}</span>
@@ -88,25 +95,33 @@ export function legend(DOMElement, uniquePrefix) {
 		},
 		item: {
 			// the one clicked stays as is (it's getting "focussed on"), while all others fade out a little bit
-			onclick: function (id) {
+			 onclick: function (id) {
+			// 	const IF = chartInterface[uniquePrefix+"legend"]
+			// 	if (currentSelection) {
+			// 		if (id == currentSelection) {
+			// 			currentSelection = null
+			// 			IF.focus()
+			// 		} else {
+			// 			currentSelection = id
+			// 			IF.blur()
+			// 			window.requestAnimationFrame(() => IF.focus(id))
+			// 		}
+			// 	} else {
+			// 		currentSelection = id
+			// 		IF.focus()
+			// 		window.requestAnimationFrame(() => IF.focus(id))
+			// 	}
+			 },
+			onover: function (id) { 
 				const IF = chartInterface[uniquePrefix+"legend"]
-				if (currentSelection) {
-					if (id == currentSelection) {
-						currentSelection = null
-						IF.focus()
-					} else {
-						currentSelection = id
-						IF.blur()
-						window.requestAnimationFrame(() => IF.focus(id))
-					}
-				} else {
-					currentSelection = id
-					IF.focus()
-					window.requestAnimationFrame(() => IF.focus(id))
-				}
+				IF.focus(id)
+				//console.log("over legend",id) 
 			},
-			onover: function (id) { },
-			onout: function (id) { },
+			onout: function (id) { 
+				const IF = chartInterface[uniquePrefix+"legend"]
+				IF.focus()
+				//console.log("out legend",id) 
+			},
 		}
 	}
 }
