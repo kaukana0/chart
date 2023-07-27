@@ -211,8 +211,11 @@ function createChart(context, type) {		// using billboard.js
 		point: {pattern:[]},
 		line: {classes:[]},
 		onover: function(d, element) {
-//			console.log("over chart",d,element)
-	 }
+			//console.log("over chart",d,element)
+	 	},
+		transition: {
+			duration: 0
+	 	}
 	}
 
 	if(context.showLines) {
@@ -253,7 +256,6 @@ function updateChart(cols, context, alertMessage) {
 			}
 			//addLegendKeyboardNavigability(chart.legendDOMElementId)
 			if(context.onFinished) {context.onFinished()}
-			//drawScatterLines()
 		}
 	})
 
@@ -326,63 +328,3 @@ export function getUniqueId(chartDOMElementId) {
 		return ""
 	}
 }
-
-
-/*
-TODO: rewrite this original code as vanilla JS
-
-green
-document.querySelector("#chartCard-Migrant-population-share").shadowRoot.querySelector("#chart2 > svg > g > g.bb-chart > g.bb-chart-lines > g.bb-chart-line.bb-target.bb-target-NAT > g.bb-shapes.bb-shapes-NAT.bb-circles.bb-circles-NAT > use.bb-shape.bb-shape-21.bb-circle.bb-circle-21")
-
-pink
-document.querySelector("#chartCard-Migrant-population-share").shadowRoot.querySelector("#chart2 > svg > g > g.bb-chart > g.bb-chart-lines > g.bb-chart-line.bb-target.bb-target-EU-FOR > g.bb-shapes.bb-shapes-EU-FOR.bb-circles.bb-circles-EU-FOR > use.bb-shape.bb-shape-25.bb-circle.bb-circle-25")
-*/
-function drawScatterLines() {
-
-	$(".dotLine").remove();
-	var svg
-	var lineFunction = d3.line()
-			.x(function (d) { return d.x; })
-			.y(function (d) { return d.y; })
-
-	for (var i = 0; i < data.length; i++) {
-		console.log("D")
-
-			var iterator = 0;
-			var xSaved = 0;
-			var circleCoords = [];
-			var line = d3.line()
-			var nodes = d3.selectAll(".bb-circle-" + i)
-					.each(function (d) {
-
-							var item = d3.select(this);
-							var visible = displayed.indexOf(d.id) !== -1;
-
-							if (d.value != null && d.value != 0 && visible) {
-									var xPadding = window.innerWidth < 600 ? 3 : 7;
-									var yPadding = window.innerWidth < 600 ? 3 : 7;
-									var cx = $(this).attr('cx') ? $(this).attr('cx') : parseFloat($(this).attr('x')) + xPadding;
-
-									var cy = $(this).attr('cy') ? $(this).attr('cy') : parseFloat($(this).attr('y')) + yPadding;
-									circleCoords.push({ x: cx, y: cy });
-							}
-							if (indicators[currentCategory].removeZeroValue && d.value == 0) {
-									this.remove();
-							}
-							if (d.id == "undefined") {
-									this.remove();
-							}
-							iterator++;
-					});
-
-			svg = d3.selectAll("#chart svg .bb-chart-lines")
-
-			var lineGraph = svg.append("path")
-					.attr("d", lineFunction(circleCoords))
-					.attr("class", "dotLine")
-					.moveToBack();
-
-	}
-
-}
-
