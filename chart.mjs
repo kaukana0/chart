@@ -143,7 +143,8 @@ export function init(cfg) {
 							alertMessage: cfg.alertMessage,
 							showLines: typeof(cfg.showLines)!=="undefined"?cfg.showLines:true,
 							tooltipFn: typeof(cfg.tooltipFn)!=="undefined"?cfg.tooltipFn:null,
-							labelEveryTick: cfg.labelEveryTick
+							labelEveryTick: cfg.labelEveryTick,
+							xAxisLabelBetween: typeof(cfg.xAxisLabelBetween)!=="undefined"?cfg.xAxisLabelBetween:true
 						}),
 					cfg.type
 				)
@@ -202,7 +203,7 @@ function createChart(context, type) {		// using billboard.js
 			}
 		},
 		grid: grid(),
-		axis: axis(context.categories, context.isRotated, context.id, context.labelEveryTick),
+		axis: axis(context.categories, context.isRotated, context.id, context.labelEveryTick, context.xAxisLabelBetween),
 		tooltip: context.tooltipFn ? context.tooltipFn(context) : tooltip(context),
 		onresized: function() {
 			displayMissingDataInLegend(context.currentCols, context.uniquePrefix)
@@ -324,7 +325,7 @@ export function getUniqueId(chartDOMElementId) {
 	if(Contexts.get(chartDOMElementId)) {
 		return Contexts.get(chartDOMElementId).uniquePrefix
 	} else {
-		console.error("chart: id not found in contexts", chartDOMElementId)
+		console.warn("chart: id not found in contexts", chartDOMElementId)
 		return ""
 	}
 }

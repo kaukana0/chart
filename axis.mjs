@@ -7,14 +7,14 @@ const state = {
 }
 
 
-export function axis(categories, isRotated, domId, labelEveryTick) {
+export function axis(categories, isRotated, domId, labelEveryTick, centered) {
 	
 	const retVal = {
 		x: {
 			type: "category",
 			categories: categories,
 			tick: {
-				centered: true,
+				centered: centered,
 				multiline: false,
 				//autorotate: true,
 				//rotate: 15,
