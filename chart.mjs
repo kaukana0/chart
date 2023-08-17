@@ -329,3 +329,11 @@ export function getUniqueId(chartDOMElementId) {
 		return ""
 	}
 }
+
+export function focus(id,bla) {
+	Contexts.get(id).chart.focus(bla)
+}
+
+export function defocus(id) {
+	Contexts.get(id).chart.defocus()
+}
