@@ -63,67 +63,75 @@ export function setChartInterface(uniqueId, _chartInterface) {
 }
 
 
+export function legend(DOMElement, uniquePrefix, behaviour) {
+	const retVal = {}
 
-export function legend(DOMElement, uniquePrefix) {
-	return {
-		position: "right",
-		contents: {
-			bindto: DOMElement,
-			template: function (title, _) {
-				// when chart.data specifies "color" instead of "colors",
-				// initially this callback's second arg is undefined and all legend colors become black.
-				// so, second arg (color) is useless in that case - maybe it's a billboard.js bug.
-				const IF = chartInterface[uniquePrefix+"legend"]
-				const color = IF.getColor(title)
+	retVal["position"] = "right"
+	retVal["contents"] = {bindto: DOMElement}
 
-				// TODO: this stuff is project specific. The adapter too. get it out of here.
-				if(adapters[uniquePrefix].cond1(title)) {
-					const titlePart = title.substring(0,2)
-					if(adapters[uniquePrefix].cond2(titlePart)) {
-						return `<div style="width:100%; display:flex; align-items:center;">
-							<span class="coloredDot" style="background-color:${color}; margin-right:10px;"></span>
-							<span class="bb-legend-item" style="margin-bottom:8px;">${titlePart}</span>
-						</div>`
-					} else {
-						return `<div style="width:100%; height:0px; padding:0px;"></div>`
-					}
-				} else {
-					return `<div style="width:100%; height:0px;"></div>`
-				}
+	retVal["contents"]["template"] = function (title, _) {
+		// when chart.data specifies "color" instead of "colors",
+		// initially this callback's second arg is undefined and all legend colors become black.
+		// so, second arg (color) is useless in that case - maybe it's a billboard.js bug.
+		const IF = chartInterface[uniquePrefix+"legend"]
+		const color = IF.getColor(title)
 
+		// TODO: this stuff is project specific. The adapter too. get it out of here.
+		if(adapters[uniquePrefix].cond1(title)) {
+			const titlePart = title.substring(0,2)
+			if(adapters[uniquePrefix].cond2(titlePart)) {
+				return `<div style="width:100%; display:flex; align-items:center;">
+					<span class="coloredDot" style="background-color:${color}; margin-right:10px;"></span>
+					<span class="bb-legend-item" style="margin-bottom:8px;">${titlePart}</span>
+				</div>`
+			} else {
+				return `<div style="width:100%; height:0px; padding:0px;"></div>`
 			}
-		},
-		item: {
-			// the one clicked stays as is (it's getting "focussed on"), while all others fade out a little bit
-			 onclick: function (id) {
-			// 	const IF = chartInterface[uniquePrefix+"legend"]
-			// 	if (currentSelection) {
-			// 		if (id == currentSelection) {
-			// 			currentSelection = null
-			// 			IF.focus()
-			// 		} else {
-			// 			currentSelection = id
-			// 			IF.blur()
-			// 			window.requestAnimationFrame(() => IF.focus(id))
-			// 		}
-			// 	} else {
-			// 		currentSelection = id
-			// 		IF.focus()
-			// 		window.requestAnimationFrame(() => IF.focus(id))
-			// 	}
-			 },
-			onover: function (id) { 
-				const IF = chartInterface[uniquePrefix+"legend"]
-				IF.focus(id)
-				//console.log("over legend",id) 
-			},
-			onout: function (id) { 
-				const IF = chartInterface[uniquePrefix+"legend"]
-				IF.focus()
-				//console.log("out legend",id) 
-			},
+		} else {
+			return `<div style="width:100%; height:0px;"></div>`
 		}
 	}
+
+	retVal["item"] = {}
+
+	if(behaviour==="hover") {
+
+		retVal["item"]["onover"] = function (id) { 
+			const IF = chartInterface[uniquePrefix+"legend"]
+			IF.focus(id)
+			//console.log("over legend",id) 
+		}
+		retVal["item"]["onout"] = function (id) { 
+			const IF = chartInterface[uniquePrefix+"legend"]
+			IF.focus()
+			//console.log("out legend",id) 
+		}
+		
+	} else {
+		
+		retVal["item"]["onclick"] = function (id) {
+			const IF = chartInterface[uniquePrefix+"legend"]
+			if (currentSelection) {
+				if (id == currentSelection) {
+					currentSelection = null
+					IF.focus()
+				} else {
+					currentSelection = id
+					IF.blur()
+					window.requestAnimationFrame(() => IF.focus(id))
+				}
+			} else {
+				currentSelection = id
+				IF.focus()
+				window.requestAnimationFrame(() => IF.focus(id))
+			}
+		}
+		retVal["item"]["onover"] = function (id) { }
+		retVal["item"]["onout"] = function (id) { }
+
+	}
+
+	return retVal
 }
 
 

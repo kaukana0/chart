@@ -129,6 +129,7 @@ export function init(cfg) {
 					Contexts.add({
 							id: cfg.chartDOMElementId,
 							legendDOMElementId: cfg.legendDOMElementId,
+							legendBehaviour: typeof(cfg.legendBehaviour)!=="undefined"?cfg.legendBehaviour:"",
 							categories: getCategories(cfg.cols),
 							// we need to hold all texts possible in the legend in order to let the chart pick the one it needs to display at runtime
 							seriesLabels: cfg.seriesLabels,
@@ -227,7 +228,7 @@ function createChart(context, type) {		// using billboard.js
 	}
 
 	if(context.legendDOMElementId) {
-		cfg["legend"] = legend(context.legendDOMElementId, context.uniquePrefix)
+		cfg["legend"] = legend(context.legendDOMElementId, context.uniquePrefix, context.legendBehaviour)
 		document.head.insertAdjacentHTML("beforeend", legendCSS(context.uniquePrefix))
 	} else {
 		cfg["legend"] = {
