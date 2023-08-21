@@ -144,6 +144,7 @@ export function init(cfg) {
 							alertMessage: cfg.alertMessage,
 							showLines: typeof(cfg.showLines)!=="undefined"?cfg.showLines:true,
 							tooltipFn: typeof(cfg.tooltipFn)!=="undefined"?cfg.tooltipFn:null,
+							legendFocusFn: typeof(cfg.legendFocusFn)!=="undefined"?cfg.legendFocusFn:null,
 							labelEveryTick: cfg.labelEveryTick,
 							xAxisLabelBetween: typeof(cfg.xAxisLabelBetween)!=="undefined"?cfg.xAxisLabelBetween:true
 						}),
@@ -281,18 +282,22 @@ function getDiff(currentCols, newCols) {
 }
 
 function connectLegend(context) {
-		setChartInterface(context.uniquePrefix+"legend", 
-		{
-			//focus: function(p) {console.log(p);context.chart.focus(p)}, 
-			focus: function(p) {
-				//console.log(p, context.currentCols)
-				context.chart.focus(p)
-			}, 
-			blur: function(p) {context.chart.defocus(p)},
-			getSeriesLabel: function(p) {return context.seriesLabels.get(p)},
-			getColor: function(key) {return context.colors.get(key)}
-		})
-		createAdapter(context.uniquePrefix)
+	const o = {
+		blur: function(p) {context.chart.defocus(p)},
+		getSeriesLabel: function(p) {return context.seriesLabels.get(p)},
+		getColor: function(key) {return context.colors.get(key)}
+	}
+
+	if(context.legendFocusFn) {
+		o["focus"] = context.legendFocusFn
+	} else {
+		o["focus"] = function(p) {
+			context.chart.focus(p)
+		}
+	}
+
+	setChartInterface(context.uniquePrefix+"legend", o)
+	createAdapter(context.uniquePrefix)
 }
 
 function makeTooltipDismissable(chartDOMElementId) {
