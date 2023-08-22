@@ -331,7 +331,7 @@ export function getUniqueId(chartDOMElementId) {
 	if(Contexts.get(chartDOMElementId)) {
 		return Contexts.get(chartDOMElementId).uniquePrefix
 	} else {
-		console.warn("chart: id not found in contexts", chartDOMElementId)
+		//console.warn("chart: id not found in contexts", chartDOMElementId)
 		return ""
 	}
 }

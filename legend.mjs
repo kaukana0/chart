@@ -106,9 +106,10 @@ export function legend(DOMElement, uniquePrefix, behaviour) {
 			IF.focus()
 			//console.log("out legend",id) 
 		}
-		
+		retVal["item"]["onclick"] = function (){}
+
 	} else {
-		
+
 		retVal["item"]["onclick"] = function (id) {
 			const IF = chartInterface[uniquePrefix+"legend"]
 			if (currentSelection) {
@@ -148,7 +149,7 @@ export function displayMissingDataInLegend(cols, uniquePrefix) {
 			if(el) {
 				el.setAttribute("style", "border-color: lightgrey; text-decoration: line-through;")
 			} else {
-				console.warn("legend: no element " + uniquePrefix + col[0])
+				//console.warn("legend: no element " + uniquePrefix + col[0])
 			}
 		} else {
 			someDataExists = true
