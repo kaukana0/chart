@@ -74,12 +74,13 @@ export function legend(DOMElement, uniquePrefix, behaviour) {
 		// initially this callback's second arg is undefined and all legend colors become black.
 		// so, second arg (color) is useless in that case - maybe it's a billboard.js bug.
 		const IF = chartInterface[uniquePrefix+"legend"]
-		const color = IF.getColor(title)
+		let color = IF.getColor(title)
 
-		// TODO: this stuff is project specific. The adapter too. get it out of here.
+		// TODO: this stuff is project specific. The adapter too. get it out of here. or make it at least configurable.
 		if(adapters[uniquePrefix].cond1(title)) {
 			const titlePart = title.substring(0,2)
 			if(adapters[uniquePrefix].cond2(titlePart)) {
+				if(titlePart==="EU") {color="#0E47CB"}	// TODO: that's a hack. do it right.
 				return `<div style="width:100%; display:flex; align-items:center;">
 					<span class="coloredDot" style="background-color:${color}; margin-right:10px;"></span>
 					<span class="bb-legend-item" style="margin-bottom:8px;">${titlePart}</span>
