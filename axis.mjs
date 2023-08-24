@@ -18,6 +18,7 @@ export function axis(categories, isRotated, domId, labelEveryTick, centered) {
 				multiline: false,
 				//autorotate: true,
 				//rotate: 15,
+				outer: false,
 
 				// this is a misnomer (in this situation).
 				// it actually defines for which values to draw a tickmark.
@@ -49,14 +50,22 @@ export function axis(categories, isRotated, domId, labelEveryTick, centered) {
 					}
 				}
 
-			}
+			},
+			padding: 
+			//{left: -0.2,	right: -0.2, unit: "%"}   
+			-0.4
 		},
 		y: {
 			label: {
 				text: "",   // see setYLabel()
 				position: "outer-middle"
 			},
-			tick: {show:false}		// TODO: make configurable
+			tick: {
+				show:false,		// TODO: make configurable
+				format: function(val) {
+          return Intl.NumberFormat("en-US",{minimumFractionDigits:0}).format(val).replaceAll(","," ")
+      	}
+			}		
 		}
 	}
 

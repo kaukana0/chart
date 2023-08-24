@@ -247,6 +247,7 @@ function createChart(context, type) {		// using billboard.js
 function updateChart(cols, context, alertMessage) {
 	context.applyColorsToSeries(cols)
 
+	context.chart.flush(true)
 	context.chart.load({
 		//unload: getDiff(context.currentCols, cols), 	// smooth transition. sadly, doesn't correctly order legend. 
 		unload: true, 									// unsmooth but order correctly
