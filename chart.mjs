@@ -146,7 +146,8 @@ export function init(cfg) {
 							tooltipFn: typeof(cfg.tooltipFn)!=="undefined"?cfg.tooltipFn:null,
 							legendFocusFn: typeof(cfg.legendFocusFn)!=="undefined"?cfg.legendFocusFn:null,
 							labelEveryTick: cfg.labelEveryTick,
-							xAxisLabelBetween: typeof(cfg.xAxisLabelBetween)!=="undefined"?cfg.xAxisLabelBetween:true
+							xAxisLabelBetween: typeof(cfg.xAxisLabelBetween)!=="undefined"?cfg.xAxisLabelBetween:true,
+							decimals: typeof(cfg.decimals)!=="undefined"?cfg.decimals:1,
 						}),
 					cfg.type
 				)
