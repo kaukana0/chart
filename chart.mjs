@@ -318,10 +318,25 @@ export function setYLabel(chartDOMElementId, text) {
 	}
 }
 
+// if called while there is currently a resize() ongoing, the function complains.
+// the callbacks are being serialized here though.
 export function resize(chartDOMElementId, w, h, callback) {
-	if(Contexts.get(chartDOMElementId)) {
+	const ctx = Contexts.get(chartDOMElementId)
+	if(ctx) {
+		
 		if(callback) {
-			Contexts.get(chartDOMElementId).upsert({onResized: callback})
+			if(typeof ctx["resizeCallbackScope"] === "undefined") {
+				ctx["resizeCallbackScope"] = {curCb: []}
+	
+				function c() {
+					if(this.curCb.length>1) {console.warn("chart: callbacks queued")}
+					while(this.curCb.length>0) {
+						this.curCb.shift()()
+					}
+				}
+				Contexts.get(chartDOMElementId).upsert({onResized: c.bind(ctx["resizeCallbackScope"])})
+			}
+			ctx["resizeCallbackScope"].curCb.push(callback)
 		} else {
 			Contexts.get(chartDOMElementId).upsert({onResized: null})
 		}
