@@ -35,6 +35,7 @@ class Adapter {
 		} else {
 			this.counter1.set(k,0)
 		}
+		//console.log(k,this.counter1.get(k))
 		return this.counter1.get(k)===this.drawWhen
 	} 
 
@@ -49,7 +50,8 @@ class Adapter {
 	}
 }
 
-export function resetCounter(uniqueId, drawWhen=1) {
+export function resetCounter(logMsg, uniqueId, drawWhen=1) {
+	//console.log(logMsg)
 	adapters[uniqueId].reset(drawWhen)
 }
 

@@ -118,7 +118,8 @@ export function init(cfg) {
 					categories: getCategories(cfg.cols),
 					suffixText: cfg.suffixText,
 					seriesLabels: cfg.seriesLabels,
-					fixColors: cfg.fixColors
+					fixColors: cfg.fixColors,
+					onFinished: cfg.onFinished,
 				}),
 				cfg.alertMessage
 		)
@@ -329,7 +330,7 @@ export function resize(chartDOMElementId, w, h, callback) {
 				ctx["resizeCallbackScope"] = {curCb: []}
 	
 				function c() {
-					if(this.curCb.length>1) {console.warn("chart: callbacks queued")}
+					if(this.curCb.length>1) {console.warn(`chart: ${this.curCb.length} callbacks queued`)}
 					while(this.curCb.length>0) {
 						this.curCb.shift()()
 					}
