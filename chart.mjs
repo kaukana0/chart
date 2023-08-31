@@ -149,6 +149,7 @@ export function init(cfg) {
 							labelEveryTick: cfg.labelEveryTick,
 							xAxisLabelBetween: typeof(cfg.xAxisLabelBetween)!=="undefined"?cfg.xAxisLabelBetween:true,
 							decimals: typeof(cfg.decimals)!=="undefined"?cfg.decimals:1,
+							padding: cfg.padding
 						}),
 					cfg.type
 				)
@@ -201,13 +202,19 @@ function createChart(context, type) {		// using billboard.js
 		data: {
 			columns: [],
 			type: type,
-			color: (_, d) => context.colors.get(d.id),
+			color: (_, d) => {
+				if(d.x===0) {		// TODO: project spcific, get this out of here
+					return context.fixColors["EU, "+d.id]
+				} else {
+					return context.colors.get(d.id)
+				}
+			},
 			onover: function(d, element) {
 					//console.log("over data",d,element)
 			}
 		},
 		grid: grid(),
-		axis: axis(context.categories, context.isRotated, context.id, context.labelEveryTick, context.xAxisLabelBetween),
+		axis: axis(context.categories, context.isRotated, context.id, context.labelEveryTick, context.xAxisLabelBetween, context.padding),
 		tooltip: context.tooltipFn ? context.tooltipFn(context) : tooltip(context),
 		onresized: function() {
 			displayMissingDataInLegend(context.currentCols, context.uniquePrefix)
@@ -227,6 +234,7 @@ function createChart(context, type) {		// using billboard.js
 		cfg.line.classes.push("thick-line")
 	} else {
 		cfg.line.classes.push("hide-line")
+		cfg.point.pattern.push("<circle r='6' cx='6' cy='6'></circle>")
 		cfg.point.pattern.push("<circle r='6' cx='6' cy='6'></circle>")
 	}
 

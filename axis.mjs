@@ -7,54 +7,59 @@ const state = {
 }
 
 
-export function axis(categories, isRotated, domId, labelEveryTick, centered) {
+export function axis(categories, isRotated, domId, labelEveryTick, centered, padding) {
 	
-	const retVal = {
-		x: {
-			type: "category",
-			categories: categories,
-			tick: {
-				centered: centered,
-				multiline: false,
-				//autorotate: true,
-				//rotate: 15,
-				outer: false,
 
-				// this is a misnomer (in this situation).
-				// it actually defines for which values to draw a tickmark.
-				// returns array of ordinal numbers of those values (aka their index, 0-based)
-				// without defining this explicitly, there'd be too many ticks on narrow screens
-				values: function() {
-					const noCategories = this.internal.config.axis_x_categories.length	// can't use "categories.length", it's always the value of the initial axis() call
-					return getTickIndices(noCategories, domId.clientWidth)
-				},
+	const x = {
+		type: "category",
+		categories: categories,
+		tick: {
+			centered: centered,
+			multiline: false,
+			//autorotate: true,
+			//rotate: 15,
+			outer: false,
 
-				// this is a misnomer (in this situation).
-				// it actually defines the tick text shown w/ option to show no text at all for a tick.
-				// this depends on "values" - only for indices contained in values this is being called - so, no tick, no text.
-				// this is being called twice - no idea why...
-				format: function(index, categoryName) {
-					if(labelEveryTick) {
-						return categoryName 
+			// this is a misnomer (in this situation).
+			// it actually defines for which values to draw a tickmark.
+			// returns array of ordinal numbers of those values (aka their index, 0-based)
+			// without defining this explicitly, there'd be too many ticks on narrow screens
+			values: function() {
+				const noCategories = this.internal.config.axis_x_categories.length	// can't use "categories.length", it's always the value of the initial axis() call
+				return getTickIndices(noCategories, domId.clientWidth)
+			},
+
+			// this is a misnomer (in this situation).
+			// it actually defines the tick text shown w/ option to show no text at all for a tick.
+			// this depends on "values" - only for indices contained in values this is being called - so, no tick, no text.
+			// this is being called twice - no idea why...
+			format: function(index, categoryName) {
+				if(labelEveryTick) {
+					return categoryName 
+				} else {
+					if(state.flipFlop) {
+						state.flipFlop = false
+						return	// this fct is called twice, the first of which has no influence on anything visual...
 					} else {
-						if(state.flipFlop) {
-							state.flipFlop = false
-							return	// this fct is called twice, the first of which has no influence on anything visual...
-						} else {
-							const noCategories = this.internal.config.axis_x_categories.length	// can't use "categories.length", it's always the value of the initial axis() call
-							state.flipFlop = true
-							state.labelCount += 1
-							if( shouldDrawLabel(state.labelCount, noCategories, domId.clientWidth) ) {state.labelCount = 0}
-							return state.labelCount === 0 ? categoryName : ""
-						}
+						const noCategories = this.internal.config.axis_x_categories.length	// can't use "categories.length", it's always the value of the initial axis() call
+						state.flipFlop = true
+						state.labelCount += 1
+						if( shouldDrawLabel(state.labelCount, noCategories, domId.clientWidth) ) {state.labelCount = 0}
+						return state.labelCount === 0 ? categoryName : ""
 					}
 				}
+			}
 
-			},
-			padding: 
-			//{left: -0.2,	right: -0.2, unit: "%"}   
-			-0.2
-		},
+		}
+	}
+
+	//{left: -0.2,	right: -0.2, unit: "%"}   
+	if(padding) {
+		x["padding"] = padding
+	}
+
+	const retVal = {
+		x: x,
 		y: {
 			label: {
 				text: "",   // see setYLabel()
