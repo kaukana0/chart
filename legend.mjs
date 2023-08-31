@@ -52,7 +52,7 @@ class Adapter {
 
 export function resetCounter(logMsg, uniqueId, drawWhen=1) {
 	//console.log(logMsg)
-	adapters[uniqueId].reset(drawWhen)
+	if(adapters[uniqueId]) adapters[uniqueId].reset(drawWhen)
 }
 
 export function createAdapter(uniqueId) {

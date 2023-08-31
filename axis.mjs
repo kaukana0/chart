@@ -53,7 +53,7 @@ export function axis(categories, isRotated, domId, labelEveryTick, centered) {
 			},
 			padding: 
 			//{left: -0.2,	right: -0.2, unit: "%"}   
-			-0.4
+			-0.2
 		},
 		y: {
 			label: {
