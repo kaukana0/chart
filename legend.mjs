@@ -165,9 +165,8 @@ export function displayMissingDataInLegend(cols, uniquePrefix, root) {
 				for (let i = 0; i < root.childNodes.length; i++) {
 					const node = root.childNodes[i]
 					if(node.hasAttribute("id")) {
-						console.log(id, node.getAttribute("id"))
 						if(node.getAttribute("id").includes((id))) {
-							node.childNodes[1].style.backgroundColor = "#555"
+							node.childNodes[1].style.backgroundColor = "#BBB"
 							node.childNodes[3].setAttribute("style",
 								node.childNodes[3].getAttribute("style")+"text-decoration: line-through;")
 						}
