@@ -83,7 +83,7 @@ export function legend(DOMElement, uniquePrefix, behaviour) {
 			const titlePart = title.substring(0,2)
 			if(adapters[uniquePrefix].cond2(titlePart)) {
 				if(titlePart==="EU") {color="#0E47CB"}	// TODO: that's a hack. do it right.
-				return `<div style="width:100%; display:flex; align-items:center;">
+				return `<div style="width:100%; display:flex; align-items:center;" id="${uniquePrefix+title}">
 					<span class="coloredDot" style="background-color:${color}; margin-right:10px;"></span>
 					<span class="bb-legend-item" style="margin-bottom:8px;">${titlePart}</span>
 				</div>`
@@ -142,22 +142,40 @@ export function legend(DOMElement, uniquePrefix, behaviour) {
 // grey out legend elements that have no data
 // cols is [["dataSeriesKey",..values...], ["dataSeriesKey",..values...]]
 // returns true if any data exists at all, false othewise
-export function displayMissingDataInLegend(cols, uniquePrefix) {
+export function displayMissingDataInLegend(cols, uniquePrefix, root) {
 	let someDataExists = false
+	const totalCount = new Map()		// {"EU":[totalCount, allZerosCount]}
+	const allZerosCount = new Map()
 
 	cols.forEach(col => {
-		const allValuesNull = col.slice(1).every(el => el === null)
-		if (allValuesNull) {
-			const el = document.getElementById(uniquePrefix + col[0])
-			if(el) {
-				el.setAttribute("style", "border-color: lightgrey; text-decoration: line-through;")
-			} else {
-				//console.warn("legend: no element " + uniquePrefix + col[0])
-			}
-		} else {
-			someDataExists = true
-		}
+		const head = col[0]
+		const headCut = head.substring(0,2)
+		const tail = col.slice(1)
+		totalCount.set(headCut, totalCount.has(headCut) ? totalCount.get(headCut)+1 : 1)
+		const allZeros = tail.every(el => el === null)
+		const currentCount = allZerosCount.has(headCut) ? allZerosCount.get(headCut) : 0
+		const newCount = allZeros ? currentCount+1 : currentCount
+		allZerosCount.set(headCut, newCount)
 	})
+
+	for(let [key, value] of totalCount) { 
+		if(value===allZerosCount.get(key)) {	// all are missing
+			if(root) {
+				const id = uniquePrefix + key
+				for (let i = 0; i < root.childNodes.length; i++) {
+					const node = root.childNodes[i]
+					if(node.hasAttribute("id")) {
+						console.log(id, node.getAttribute("id"))
+						if(node.getAttribute("id").includes((id))) {
+							node.childNodes[1].style.backgroundColor = "#555"
+							node.childNodes[3].setAttribute("style",
+								node.childNodes[3].getAttribute("style")+"text-decoration: line-through;")
+						}
+					}
+				}
+			}
+		}
+	}
 
     return someDataExists
 }

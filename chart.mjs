@@ -149,7 +149,8 @@ export function init(cfg) {
 							labelEveryTick: cfg.labelEveryTick,
 							xAxisLabelBetween: typeof(cfg.xAxisLabelBetween)!=="undefined"?cfg.xAxisLabelBetween:true,
 							decimals: typeof(cfg.decimals)!=="undefined"?cfg.decimals:1,
-							padding: cfg.padding
+							padding: cfg.padding,
+							firstDifferent: cfg.firstDifferent,
 						}),
 					cfg.type
 				)
@@ -203,8 +204,8 @@ function createChart(context, type) {		// using billboard.js
 			columns: [],
 			type: type,
 			color: (_, d) => {
-				if(d.x===0) {		// TODO: project spcific, get this out of here
-					return context.fixColors["EU, "+d.id]
+				if(d.x===0 && context.firstDifferent) {
+					return context.fixColors[context.firstDifferent+d.id]
 				} else {
 					return context.colors.get(d.id)
 				}
@@ -217,8 +218,8 @@ function createChart(context, type) {		// using billboard.js
 		axis: axis(context.categories, context.isRotated, context.id, context.labelEveryTick, context.xAxisLabelBetween, context.padding),
 		tooltip: context.tooltipFn ? context.tooltipFn(context) : tooltip(context),
 		onresized: function() {
-			displayMissingDataInLegend(context.currentCols, context.uniquePrefix)
 			if(context.onResized) {context.onResized()}
+			displayMissingDataInLegend(context.currentCols, context.uniquePrefix, context.legendDOMElementId)
 		},
 		point: {pattern:[]},
 		line: {classes:[]},
@@ -263,7 +264,7 @@ function updateChart(cols, context, alertMessage) {
 		columns: cols,
 		categories: context.categories,
 		done: function () {
-			if(!displayMissingDataInLegend(cols, context.uniquePrefix)) {
+			if(!displayMissingDataInLegend(cols, context.uniquePrefix, context.legendDOMElementId)) {
 				if(alertMessage) {
 					alertMessage.show()		// expected to disappear without user-interaction after a timeout
 				}
