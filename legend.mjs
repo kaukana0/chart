@@ -1,63 +1,6 @@
 let currentSelection
 let chartInterface = {}
-let adapters = []
 
-
-/*
-this adapts the drawing of legend items to
-- some billboardjs black-box (undocumented) weirdness (counter1)
-- some business logic (counter2)
-
-counter1:
-the legend template function gets called multiple times.
-in some cases, the 2nd call is actually what's being displayed, sometimes the 1st.
-this is amended w/ resetting from outside, depending on the situation.
-it's determined empirically.
-
-counter2:
-we have groups of three items, for which only 1 legend element should be displayed.
-*/
-class Adapter {
-	counter1 = new Map()
-	counter2 = []
-	drawWhen = 1
-	
-	reset(drawWhen) {
-		this.counter1.clear()
-		this.counter2.length = 0
-		this.drawWhen = drawWhen
-	}
-
-	// only do it the n-the time
-	cond1(k) {
-		if(this.counter1.has(k)) {
-			this.counter1.set(k, this.counter1.get(k)>=2?2:this.counter1.get(k)+1 )
-		} else {
-			this.counter1.set(k,0)
-		}
-		//console.log(k,this.counter1.get(k))
-		return this.counter1.get(k)===this.drawWhen
-	} 
-
-	// only do it 1 time
-	cond2(k) {
-		if(this.counter2.includes(k)) {
-			return false
-		} else {
-			this.counter2.push(k)
-			return true
-		}
-	}
-}
-
-export function resetCounter(logMsg, uniqueId, drawWhen=1) {
-	//console.log(logMsg)
-	if(adapters[uniqueId]) adapters[uniqueId].reset(drawWhen)
-}
-
-export function createAdapter(uniqueId) {
-	adapters[uniqueId] = new Adapter()
-}
 
 // narrow interface; legend doesn't need to know more of the chart than just this
 export function setChartInterface(uniqueId, _chartInterface) {
@@ -77,22 +20,14 @@ export function legend(DOMElement, uniquePrefix, behaviour) {
 		// so, second arg (color) is useless in that case - maybe it's a billboard.js bug.
 		const IF = chartInterface[uniquePrefix+"legend"]
 		let color = IF.getColor(title)
+		const titlePart = title.substring(0,2)
 
-		// TODO: this stuff is project specific. The adapter too. get it out of here. or make it at least configurable.
-		if(adapters[uniquePrefix].cond1(title)) {
-			const titlePart = title.substring(0,2)
-			if(adapters[uniquePrefix].cond2(titlePart)) {
-				if(titlePart==="EU") {color="#0E47CB"}	// TODO: that's a hack. do it right.
-				return `<div style="width:100%; display:flex; align-items:center;" id="${uniquePrefix+title}">
-					<span class="coloredDot" style="background-color:${color}; margin-right:10px;"></span>
-					<span class="bb-legend-item" style="margin-bottom:8px;">${titlePart}</span>
-				</div>`
-			} else {
-				return `<div style="width:100%; height:0px; padding:0px;"></div>`
-			}
-		} else {
-			return `<div style="width:100%; height:0px;"></div>`
-		}
+		if(titlePart==="EU") {color="#0E47CB"}	// TODO: that's a hack. do it right.
+
+		return `<div style="width:100%; display:flex; align-items:center;" id="${uniquePrefix+title}">
+			<span class="coloredDot" style="background-color:${color}; margin-right:10px;"></span>
+			<span class="bb-legend-item" style="margin-bottom:8px;">${titlePart}</span>
+		</div>`
 	}
 
 	retVal["item"] = {}
@@ -176,7 +111,7 @@ export function displayMissingDataInLegend(cols, uniquePrefix, root) {
 		}
 	}
 
-    return someDataExists
+	return someDataExists
 }
 
 

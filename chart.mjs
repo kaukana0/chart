@@ -60,7 +60,7 @@ cfg = {
 */
 
 //import * as d3 from "./../../redist/
-import {legend, displayMissingDataInLegend, addLegendKeyboardNavigability, legendCSS, setChartInterface, createAdapter} from "./legend.mjs"
+import {legend, displayMissingDataInLegend, addLegendKeyboardNavigability, legendCSS, setChartInterface} from "./legend.mjs"
 import {grid, gridCSS} from "./grid.mjs"
 import {axis, axisCSS} from "./axis.mjs"
 import {tooltip, tooltipCSS} from "./tooltip.mjs"		// the default one. can be overwritten w/ project specific impl'
@@ -309,7 +309,6 @@ function connectLegend(context) {
 	}
 
 	setChartInterface(context.uniquePrefix+"legend", o)
-	createAdapter(context.uniquePrefix)
 }
 
 function makeTooltipDismissable(chartDOMElementId) {
@@ -330,11 +329,13 @@ export function setYLabel(chartDOMElementId, text) {
 
 export function resize(chartDOMElementId, w, h, callback) {
 	if(Contexts.get(chartDOMElementId)) {
-		Contexts.get(chartDOMElementId).upsert({onResized: callback})
-	} else {
-		Contexts.get(chartDOMElementId).upsert({onResized: null})
+		if(callback) {
+			Contexts.get(chartDOMElementId).upsert({onResized: callback})
+		} else {
+			Contexts.get(chartDOMElementId).upsert({onResized: null})
+		}
+		Contexts.get(chartDOMElementId).chart.resize({width: w, height: h})
 	}
-	Contexts.get(chartDOMElementId).chart.resize({width: w, height: h})
 }
 
 export function getUniqueId(chartDOMElementId) {
