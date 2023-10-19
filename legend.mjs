@@ -102,8 +102,10 @@ export function displayMissingDataInLegend(cols, uniquePrefix, root) {
 					if(node.hasAttribute("id")) {
 						if(node.getAttribute("id").includes((id))) {
 							node.childNodes[1].style.backgroundColor = "#BBB"
+							node.childNodes[1].classList.remove("coloredDot")
+							node.childNodes[1].classList.add("disabledDot")
 							node.childNodes[3].setAttribute("style",
-								node.childNodes[3].getAttribute("style")+"text-decoration: line-through;")
+								node.childNodes[3].getAttribute("style")+"color: lightgrey;")
 						}
 					}
 				}
