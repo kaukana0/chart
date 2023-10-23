@@ -24,3 +24,28 @@ export function gridCSS() {
 	</style>
 `
 }
+
+// as established during a harmonization-dedicated meeting, end oct. 2023
+export function gridCSSNewStyle() {
+return `
+<style>
+
+.bb-xgrid,
+.bb-ygrid {
+	stroke-dasharray: 8 4;
+	shape-rendering: crispEdges; 
+}
+
+/* avoid blurry font */
+g.bb-axis.bb-axis-x,
+g.bb-axis.bb-axis-y {
+	stroke: unset;
+}
+
+.bb-grid line {
+	stroke: #7D8088;		/* EU Grey 60 */
+}
+
+</style>
+`
+}

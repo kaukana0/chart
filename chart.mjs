@@ -61,13 +61,18 @@ cfg = {
 
 //import * as d3 from "./../../redist/
 import {legend, displayMissingDataInLegend, addLegendKeyboardNavigability, legendCSS, setChartInterface} from "./legend.mjs"
-import {grid, gridCSS} from "./grid.mjs"
+import {grid, gridCSS, gridCSSNewStyle} from "./grid.mjs"
 import {axis, axisCSS} from "./axis.mjs"
 import {tooltip, tooltipCSS} from "./tooltip.mjs"		// the default one. can be overwritten w/ project specific impl'
 
 
 // for all charts. refactor if neccessary that each chart gets their own CSS.
-document.head.insertAdjacentHTML("beforeend", gridCSS()+axisCSS())
+document.head.insertAdjacentHTML("beforeend", gridCSSNewStyle()+axisCSS())
+
+
+export function getSeries(cols) { return cols.slice(1) }		// col array w/o 1st entry (also an array) yields all series' keys+data (see also head comment)
+export function getSeriesKeys(cols) { return cols.map(e=>e[0]) }	// 1st element of every sub-array (in the array) yields all series' keys
+export function getCategories(cols) { return cols[0] }
 
 
 class Contexts {
@@ -102,10 +107,6 @@ class Contexts {
 	static has(id) { return this.states.has(id) }
 	static get(id) { return this.states.get(id) }
 }
-
-function getSeries(cols) { return cols.slice(1) }		// col array w/o 1st entry (also an array) yields all series' keys+data (see also head comment)
-function getSeriesKeys(cols) { return cols.map(e=>e[0]) }	// 1st element of every sub-array (in the array) yields all series' keys
-function getCategories(cols) { return cols[0] }
 
 
 export function init(cfg) {
