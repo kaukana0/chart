@@ -24,9 +24,9 @@ export function legend(DOMElement, uniquePrefix, behaviour) {
 
 		if(titlePart==="EU") {color="#0E47CB"}	// TODO: that's a hack. do it right.
 
-		return `<div style="width:100%; display:flex; align-items:center;" id="${uniquePrefix+title}">
+		return `<div style="width:100%; display:flex; align-items:center; margin-bottom:8px;" id="${uniquePrefix+title}">
 			<span class="coloredDot" style="background-color:${color}; margin-right:10px;"></span>
-			<span class="bb-legend-item" style="margin-bottom:8px;">${titlePart}</span>
+			<span class="bb-legend-item">${titlePart}</span>
 		</div>`
 	}
 
@@ -101,11 +101,19 @@ export function displayMissingDataInLegend(cols, uniquePrefix, root) {
 					const node = root.childNodes[i]
 					if(node.hasAttribute("id")) {
 						if(node.getAttribute("id").includes((id))) {
-							node.childNodes[1].style.backgroundColor = "#BBB"
-							node.childNodes[1].classList.remove("coloredDot")
-							node.childNodes[1].classList.add("disabledDot")
+							//node.childNodes[1].classList.remove("coloredDot")
+							//node.childNodes[1].classList.add("disabledDot")
+
+							node.childNodes[1].style.backgroundColor = "#cccccc"
+
+							// the text
 							node.childNodes[3].setAttribute("style",
-								node.childNodes[3].getAttribute("style")+"color: lightgrey;")
+								node.childNodes[3].getAttribute("style")+"color: #cccccc;")
+
+							const x = document.createElement("span")
+							x.classList.add("disabledDotLine")
+							node.append(x)
+
 						}
 					}
 				}
