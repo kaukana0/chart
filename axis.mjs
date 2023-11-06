@@ -50,7 +50,8 @@ export function axis(categories, isRotated, domId, labelEveryTick, centered, pad
 				}
 			}
 
-		}
+		},
+		min: 0		// TODO: configurable
 	}
 
 	//{left: -0.2,	right: -0.2, unit: "%"}   

@@ -67,7 +67,7 @@ import {tooltip, tooltipCSS} from "./tooltip.mjs"		// the default one. can be ov
 
 
 // for all charts. refactor if neccessary that each chart gets their own CSS.
-document.head.insertAdjacentHTML("beforeend", gridCSSNewStyle()+axisCSS())
+document.head.insertAdjacentHTML("beforeend", gridCSS()+axisCSS())
 
 
 export function getSeries(cols) { return cols.slice(1) }		// col array w/o 1st entry (also an array) yields all series' keys+data (see also head comment)
