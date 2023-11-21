@@ -339,6 +339,10 @@ export function resize(chartDOMElementId, w, h, callback) {
 	}
 }
 
+export function nullifyCallback(chartDOMElementId) {
+	Contexts.get(chartDOMElementId).upsert({onResized: null})
+}
+
 export function getUniqueId(chartDOMElementId) {
 	if(Contexts.get(chartDOMElementId)) {
 		return Contexts.get(chartDOMElementId).uniquePrefix
