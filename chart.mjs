@@ -121,6 +121,7 @@ export function init(cfg) {
 					seriesLabels: cfg.seriesLabels,
 					fixColors: cfg.fixColors,
 					onFinished: cfg.onFinished,
+					minMaxY: typeof(cfg.minMaxY)!=="undefined"?cfg.minMaxY:null,
 				}),
 				cfg.alertMessage
 		)
@@ -152,6 +153,7 @@ export function init(cfg) {
 							decimals: typeof(cfg.decimals)!=="undefined"?cfg.decimals:1,
 							padding: cfg.padding,
 							firstDifferent: cfg.firstDifferent,
+							minMaxY: typeof(cfg.minMaxY)!=="undefined"?cfg.minMaxY:null,
 						}),
 					cfg.type
 				)
@@ -274,6 +276,10 @@ function updateChart(cols, context, alertMessage) {
 			if(context.onFinished) {context.onFinished()}
 		}
 	})
+
+	if(context.minMaxY!==null && context.minMaxY.min!==Number.POSITIVE_INFINITY) {
+		context.chart.axis.min(context.minMaxY.min)
+	} // TODO: max
 
 	context.upsert({currentCols: cols})
 
