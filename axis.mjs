@@ -71,7 +71,8 @@ export function axis(categories, isRotated, domId, labelEveryTick, centered, pad
 				format: function(val) {
           return Intl.NumberFormat("en-US",{minimumFractionDigits:0}).format(val).replaceAll(","," ")
       	}
-			}		
+			},
+			padding: {bottom:10}		//TODO: make configurable
 		}
 	}
 
