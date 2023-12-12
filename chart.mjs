@@ -235,11 +235,15 @@ function createChart(context, type) {		// using billboard.js
 	 	},
 		resize:{
 			auto: false,
-			timer:250},
+			timer:250
+		},
 		render: {
 			lazy: false,
 			observe: false
-	 } 
+	 }, 
+	 padding: {
+		mode:"fit"
+	 }
 	}
 
 	if(context.showLines) {
