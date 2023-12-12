@@ -142,6 +142,7 @@ export function init(cfg) {
 							uniquePrefix: "chartElement" + Math.floor(Math.random() * 10000),
 							currentCols: [],
 							onFinished: cfg.onFinished,
+							onResized: cfg.onResized,
 							palette: cfg.palette,
 							fixColors: cfg.fixColors,
 							alertMessage: cfg.alertMessage,
@@ -231,7 +232,14 @@ function createChart(context, type) {		// using billboard.js
 	 	},
 		transition: {
 			duration: 0
-	 	}
+	 	},
+		resize:{
+			auto: false,
+			timer:250},
+		render: {
+			lazy: false,
+			observe: false
+	 } 
 	}
 
 	if(context.showLines) {
@@ -335,6 +343,7 @@ export function setYLabel(chartDOMElementId, text) {
 }
 
 export function resize(chartDOMElementId, w, h, callback) {
+	return
 	if(Contexts.get(chartDOMElementId)) {
 		if(callback) {
 			Contexts.get(chartDOMElementId).upsert({onResized: callback})
@@ -364,4 +373,14 @@ export function focus(id,bla) {
 
 export function defocus(id) {
 	Contexts.get(id).chart.defocus()
+}
+
+export function flush(id) {
+	const c = Contexts.get(id)
+	if(c) {
+		Contexts.get(id).chart.flush()
+	} else {
+		//console.warn("chart: flush unknown id")
+		//console.trace()
+	}
 }
