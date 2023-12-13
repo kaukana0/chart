@@ -71,6 +71,7 @@ const cfg = {
 }
 
 export function shouldDrawLabel(currentTickCount, noValues, drawAreaWidth) {
+    if(noValues===1) {return true}
     const noTicks = cfg.get(cfg.ticksInBetweenLabels, drawAreaWidth, noValues)
     //console.debug(`chart axis: to label ${noValues} values in a draw area of ${drawAreaWidth} we use ${noTicks} ticks`)
     return currentTickCount > noTicks
