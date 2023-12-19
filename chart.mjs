@@ -346,18 +346,6 @@ export function setYLabel(chartDOMElementId, text) {
 	}
 }
 
-export function resize(chartDOMElementId, w, h, callback) {
-	return
-	if(Contexts.get(chartDOMElementId)) {
-		if(callback) {
-			Contexts.get(chartDOMElementId).upsert({onResized: callback})
-		} else {
-			Contexts.get(chartDOMElementId).upsert({onResized: null})
-		}
-		Contexts.get(chartDOMElementId).chart.resize({width: w, height: h})
-	}
-}
-
 export function nullifyCallback(chartDOMElementId) {
 	Contexts.get(chartDOMElementId).upsert({onResized: null})
 }
@@ -386,5 +374,17 @@ export function flush(id) {
 	} else {
 		//console.warn("chart: flush unknown id")
 		//console.trace()
+	}
+}
+
+export function setWidth(id, w) {
+	const c = Contexts.get(id)
+	if(c) {
+		if(w) {
+			c.chart.resize({width:w})
+		} else {
+			c.chart.resize({})
+			c.chart.flush()
+		}
 	}
 }
