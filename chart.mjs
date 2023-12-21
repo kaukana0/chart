@@ -250,9 +250,8 @@ function createChart(context, type) {		// using billboard.js
 		cfg.line.classes.push("thick-line")
 	} else {
 		cfg.line.classes.push("hide-line")
-		cfg.point.pattern.push("<circle r='6' cx='6' cy='6'></circle>")
-		cfg.point.pattern.push("<circle r='6' cx='6' cy='6'></circle>")
-	}
+		cfg.point.pattern.push(`<circle r='6' cx='6' cy='6' ></circle>`)
+}
 
 	if(context.legendDOMElementId) {
 		cfg["legend"] = legend(context.legendDOMElementId, context.uniquePrefix, context.legendBehaviour)
