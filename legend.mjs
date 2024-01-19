@@ -118,6 +118,8 @@ export function displayMissingDataInLegend(cols, uniquePrefix, root) {
 					}
 				}
 			}
+		} else {
+			someDataExists = true
 		}
 	}
 
