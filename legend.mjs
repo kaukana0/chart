@@ -8,25 +8,23 @@ export function setChartInterface(uniqueId, _chartInterface) {
 }
 
 
-export function legend(DOMElement, uniquePrefix, behaviour) {
+export function legend(DOMElement, uniquePrefix, behaviour, cacCallback) {
 	const retVal = {}
 
 	retVal["position"] = "right"
 	retVal["contents"] = {bindto: DOMElement}
 
-	retVal["contents"]["template"] = function (title, _) {
+	retVal["contents"]["template"] = function (_title, _) {
 		// when chart.data specifies "color" instead of "colors",
 		// initially this callback's second arg is undefined and all legend colors become black.
 		// so, second arg (color) is useless in that case - maybe it's a billboard.js bug.
 		const IF = chartInterface[uniquePrefix+"legend"]
-		let color = IF.getColor(title)
-		const titlePart = title.substring(0,2)
 
-		if(titlePart==="EU") {color="#0E47CB"}	// TODO: that's a hack. do it right.
+		const [title, color] = cacCallback(_title, IF)
 
 		return `<div style="width:100%; display:flex; align-items:center; margin-bottom:8px;" id="${uniquePrefix+title}">
-			<span class="coloredDot" style="background-color:${color}; margin-right:10px;"></span>
-			<span class="bb-legend-item">${titlePart}</span>
+			<span class="legendItemColor" style="background-color:${color}; margin-right:10px;"></span>
+			<span class="bb-legend-item">${title}</span>
 		</div>`
 	}
 
@@ -77,20 +75,19 @@ export function legend(DOMElement, uniquePrefix, behaviour) {
 // grey out legend elements that have no data
 // cols is [["dataSeriesKey",..values...], ["dataSeriesKey",..values...]]
 // returns true if any data exists at all, false othewise
-export function displayMissingDataInLegend(cols, uniquePrefix, root) {
+export function displayMissingDataInLegend(cols, uniquePrefix, root, cacCallback) {
 	let someDataExists = false
 	const totalCount = new Map()		// {"EU":[totalCount, allZerosCount]}
 	const allZerosCount = new Map()
 
 	cols.forEach(col => {
-		const head = col[0]
-		const headCut = head.substring(0,2)
+		const head = cacCallback(col[0])[0]
 		const tail = col.slice(1)
-		totalCount.set(headCut, totalCount.has(headCut) ? totalCount.get(headCut)+1 : 1)
+		totalCount.set(head, totalCount.has(head) ? totalCount.get(head)+1 : 1)
 		const allZeros = tail.every(el => el === null)
-		const currentCount = allZerosCount.has(headCut) ? allZerosCount.get(headCut) : 0
+		const currentCount = allZerosCount.has(head) ? allZerosCount.get(head) : 0
 		const newCount = allZeros ? currentCount+1 : currentCount
-		allZerosCount.set(headCut, newCount)
+		allZerosCount.set(head, newCount)
 	})
 
 	for(let [key, value] of totalCount) { 
@@ -101,8 +98,6 @@ export function displayMissingDataInLegend(cols, uniquePrefix, root) {
 					const node = root.childNodes[i]
 					if(node.hasAttribute("id")) {
 						if(node.getAttribute("id").includes((id))) {
-							//node.childNodes[1].classList.remove("coloredDot")
-							//node.childNodes[1].classList.add("disabledDot")
 
 							node.childNodes[1].style.backgroundColor = "#cccccc"
 

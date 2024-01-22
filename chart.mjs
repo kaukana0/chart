@@ -155,6 +155,7 @@ export function init(cfg) {
 							padding: cfg.padding,
 							firstDifferent: cfg.firstDifferent,
 							minMaxY: typeof(cfg.minMaxY)!=="undefined"?cfg.minMaxY:null,
+							cacCallback: typeof(cfg.cacCallback)!=="undefined"?cfg.cacCallback : cacCallback
 						}),
 					cfg.type
 				)
@@ -196,6 +197,7 @@ function shadeColor(color, percent) {
 	return "#"+RR+GG+BB;
 }
 
+
 function createChart(context, type) {		// using billboard.js
 
 	if(!context.tooltipFn) {
@@ -223,7 +225,7 @@ function createChart(context, type) {		// using billboard.js
 		tooltip: context.tooltipFn ? context.tooltipFn(context) : tooltip(context),
 		onresized: function() {
 			if(context.onResized) {context.onResized()}
-			displayMissingDataInLegend(context.currentCols, context.uniquePrefix, context.legendDOMElementId)
+			displayMissingDataInLegend(context.currentCols, context.uniquePrefix, context.legendDOMElementId, context.cacCallback)
 		},
 		point: {pattern:[]},
 		line: {classes:[]},
@@ -254,7 +256,7 @@ function createChart(context, type) {		// using billboard.js
 }
 
 	if(context.legendDOMElementId) {
-		cfg["legend"] = legend(context.legendDOMElementId, context.uniquePrefix, context.legendBehaviour)
+		cfg["legend"] = legend(context.legendDOMElementId, context.uniquePrefix, context.legendBehaviour, context.cacCallback)
 		document.head.insertAdjacentHTML("beforeend", legendCSS(context.uniquePrefix))
 	} else {
 		cfg["legend"] = {
@@ -278,12 +280,12 @@ function updateChart(cols, context, alertMessage) {
 		columns: cols,
 		categories: context.categories,
 		done: function () {
-			if(!displayMissingDataInLegend(cols, context.uniquePrefix, context.legendDOMElementId)) {
+			if(!displayMissingDataInLegend(cols, context.uniquePrefix, context.legendDOMElementId, context.cacCallback)) {
 				if(alertMessage) {
 					alertMessage.show()		// expected to disappear without user-interaction after a timeout
 				}
 			}
-			//addLegendKeyboardNavigability(chart.legendDOMElementId)
+			//TODO a11y addLegendKeyboardNavigability(context.legendDOMElementId)
 			if(context.onFinished) {context.onFinished()}
 		}
 	})
@@ -386,4 +388,15 @@ export function setWidth(id, w) {
 			c.chart.flush()
 		}
 	}
+}
+
+// default "compare and color callback"
+// e.g. title.substring(0,2) would make "EU, one" and "EU, another" equal, since only "EU" (2 chars) are compared.
+// also only that many chars are displayed in the legend.
+// see also: connectLegend (IF = chart interface)
+function cacCallback(title, IF) {
+	return [
+		title,
+		IF ? IF.getColor(title) : null
+	]
 }
