@@ -155,7 +155,8 @@ export function init(cfg) {
 							padding: cfg.padding,
 							firstDifferent: cfg.firstDifferent,
 							minMaxY: typeof(cfg.minMaxY)!=="undefined"?cfg.minMaxY:null,
-							cacCallback: typeof(cfg.cacCallback)!=="undefined"?cfg.cacCallback : cacCallback
+							cacCallback: typeof(cfg.cacCallback)!=="undefined"?cfg.cacCallback : cacCallback,
+							autoResize: typeof(cfg.autoResize)!=="undefined"?cfg.autoResize:false
 						}),
 					cfg.type
 				)
@@ -236,7 +237,7 @@ function createChart(context, type) {		// using billboard.js
 			duration: 0
 	 	},
 		resize:{
-			auto: false,
+			auto: context.autoResize,
 			timer:250
 		},
 		render: {
