@@ -22,7 +22,7 @@ export function legend(DOMElement, uniquePrefix, behaviour, cacCallback) {
 
 		const [title, color] = cacCallback(_title, IF)
 
-		return `<div style="width:100%; display:flex; align-items:center; margin-bottom:8px;" id="${uniquePrefix+title}">
+		return `<div style="width:100%; display:flex; align-items:center; margin-bottom:8px; border-color:${color};" id="${uniquePrefix+title}">
 			<span class="legendItemColor" style="background-color:${color}; margin-right:10px;"></span>
 			<span class="bb-legend-item">${title}</span>
 		</div>`
