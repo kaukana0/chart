@@ -21,22 +21,40 @@ export function tooltipCSS() {
     return `
 <style>
 
+
+.bb-tooltip tbody tr td.value {
+	text-align:right;
+}
+
 .bb-tooltip th {
-	font-size: 1.2rem;
+	font-size: 14px;
+	font-weight: bold;
   background: #333;
-	text-align: right;
+	text-align: left;
 	padding-top: 5px;
 	padding-bottom: 5px;
 }
 
-.bb-tooltip tbody tr td.value {
-	text-align:right;
-	text-color:green;
+.bb-tooltip-container table tbody tr th {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+}
+
+#chart > div > table > tbody td.name {
+	display: flex;
+	align-items: center;
 }
 
 .bb-tooltip-container {
 	background: white;
-  }
+}
+
+/* that's the blob left of the text */
+.bb-tooltip tbody tr td span {
+	border-radius: 8px;
+	width:16px;
+	height:16px;
+}
 
 </style>
 `

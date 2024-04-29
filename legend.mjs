@@ -137,6 +137,10 @@ export function legendCSS(uniquePrefix) {
     return `
 <style>
 
+.legendItemColor {
+	border-radius: 13px;
+}
+
 /* > bootstrap xs  legend is supposed to be on the right of chart */
 @media screen and (min-width: 576px) {
   .${uniquePrefix} {
