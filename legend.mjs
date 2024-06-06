@@ -169,6 +169,14 @@ export function legendCSS(uniquePrefix) {
   }
 }
 
+.disabledDotLine {
+	border: 2px solid rgba(0,0,0,.2);
+	display: block;
+	position: absolute !important;
+	width: 28px;
+	margin-left: -3px;
+}
+
 </style>
 `
 }
