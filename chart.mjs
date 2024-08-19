@@ -75,6 +75,8 @@ export function getSeriesKeys(cols) { return cols.map(e=>e[0]) }	// 1st element 
 export function getCategories(cols) { return cols[0] }
 
 
+let firstTime = true
+
 class Contexts {
 	static states = new Map()		// each chart gets it's own state (aka "context")
 
@@ -219,7 +221,11 @@ function createChart(context, type) {		// using billboard.js
 			},
 			onover: function(d, element) {
 					//console.log("over data",d,element)
-			}
+			},
+			
+		},
+		onrendered: function() {
+			addLegendKeyboardNavigability(context.legendDOMElementId)
 		},
 		grid: grid(),
 		axis: axis(context.categories, context.isRotated, context.id, context.labelEveryTick, context.xAxisLabelBetween, context.padding),
@@ -254,11 +260,14 @@ function createChart(context, type) {		// using billboard.js
 	} else {
 		cfg.line.classes.push("hide-line")
 		cfg.point.pattern.push(`<circle r='6' cx='6' cy='6' ></circle>`)
-}
+	}
 
 	if(context.legendDOMElementId) {
 		cfg["legend"] = legend(context.legendDOMElementId, context.uniquePrefix, context.legendBehaviour, context.cacCallback)
-		document.head.insertAdjacentHTML("beforeend", legendCSS(context.uniquePrefix))
+		if(firstTime===true) {
+			document.head.insertAdjacentHTML("beforeend", legendCSS(context.uniquePrefix))
+			firstTime = false
+		}
 	} else {
 		cfg["legend"] = {
 			show: false,
@@ -286,7 +295,6 @@ function updateChart(cols, context, alertMessage) {
 					alertMessage.show()		// expected to disappear without user-interaction after a timeout
 				}
 			}
-			//TODO a11y addLegendKeyboardNavigability(context.legendDOMElementId)
 			if(context.onFinished) {context.onFinished()}
 		}
 	})
