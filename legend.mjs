@@ -22,9 +22,9 @@ export function legend(DOMElement, uniquePrefix, behaviour, cacCallback) {
 
 		const [title, color] = cacCallback(_title, IF)
 
-		return `<div style="width:100%; display:flex; align-items:center; margin-bottom:8px; border-color:${color};" id="${uniquePrefix+title}" title="${IF.getSeriesLabel(title)}" tabindex=0>
+		return `<div style="width:100%; display:flex; align-items:center; margin-bottom:8px; border-color:${color};" id="${uniquePrefix+title}" title="${IF.getSeriesLabel(title)}">
 			<span class="legendItemColor" style="background-color:${color}; margin-right:10px;"></span>
-			<span class="bb-legend-item">${title}</span>
+			<span class="bb-legend-item" tabindex=0>${title}</span>
 		</div>`
 	}
 
@@ -128,7 +128,6 @@ export function addLegendKeyboardNavigability(DOMElement) {
 	DOMElement.querySelectorAll("span.bb-legend-item")
 	.forEach( e => {
 		if(e) {
-			e.setAttribute("tabindex","0")
 			e.addEventListener("keydown", ke => {
 				if(ke.keyCode==13) {
 
