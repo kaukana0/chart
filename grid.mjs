@@ -25,7 +25,7 @@ export function gridCSS() {
 `
 }
 
-// as established during a harmonization-dedicated meeting, end oct. 2023
+// as established during a harmonization-dedicated meeting, end oct. 2023 and changed again to EU grey 40 later on
 export function gridCSSNewStyle() {
 return `
 <style>
@@ -33,7 +33,9 @@ return `
 .bb-xgrid,
 .bb-ygrid {
 	stroke-dasharray: 8 4;
-	shape-rendering: crispEdges; 
+	stroke-width: 1px;
+  shape-rendering: auto;
+	stroke: #A8AAAF;		/* EU Grey 40 */
 }
 
 /* avoid blurry font */
@@ -43,7 +45,7 @@ g.bb-axis.bb-axis-y {
 }
 
 .bb-grid line {
-	stroke: #7D8088;		/* EU Grey 60 */
+	stroke: #A8AAAF;		/* EU Grey 40 */
 }
 
 </style>

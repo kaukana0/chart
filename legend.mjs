@@ -22,7 +22,7 @@ export function legend(DOMElement, uniquePrefix, behaviour, cacCallback) {
 
 		const [title, color] = cacCallback(_title, IF)
 
-		return `<div style="width:100%; display:flex; align-items:center; margin-bottom:8px;" id="${uniquePrefix+title}">
+		return `<div style="width:100%; display:flex; align-items:center; margin-bottom:8px; border-color:${color};" id="${uniquePrefix+title}" title="${IF.getSeriesLabel(title)}" tabindex=0>
 			<span class="legendItemColor" style="background-color:${color}; margin-right:10px;"></span>
 			<span class="bb-legend-item">${title}</span>
 		</div>`
@@ -149,6 +149,10 @@ export function legendCSS(uniquePrefix) {
     return `
 <style>
 
+.legendItemColor {
+	border-radius: 13px;
+}
+
 /* > bootstrap xs  legend is supposed to be on the right of chart */
 @media screen and (min-width: 576px) {
   .${uniquePrefix} {
@@ -175,6 +179,14 @@ export function legendCSS(uniquePrefix) {
     border-top: 8px solid;
     /* text-center class in hmtl centers vertically when below chart */
   }
+}
+
+.disabledDotLine {
+	border: 2px solid rgba(0,0,0,.2);
+	display: block;
+	position: absolute !important;
+	width: 28px;
+	margin-left: -3px;
 }
 
 </style>
