@@ -124,12 +124,24 @@ export function displayMissingDataInLegend(cols, uniquePrefix, root, cacCallback
 
 export function addLegendKeyboardNavigability(DOMElement) {
 	// all span children under the element with given selector
-	DOMElement.querySelectorAll("span")
-	.forEach( e => {e.addEventListener("keydown", ke => {
-			if(ke.keyCode==13) {
-				ke.target.click()
-			}
-		})
+	if(!DOMElement) {return}
+	DOMElement.querySelectorAll("span.bb-legend-item")
+	.forEach( e => {
+		if(e) {
+			e.setAttribute("tabindex","0")
+			e.addEventListener("keydown", ke => {
+				if(ke.keyCode==13) {
+
+					var event = new MouseEvent('mouseover', {
+						'view': window,
+						'bubbles': true,
+						'cancelable': true
+					})
+					e.dispatchEvent(event);
+
+				}
+			})
+		} 
 	})
 }
 
