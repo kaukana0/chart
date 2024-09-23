@@ -17,8 +17,9 @@ export function gridCSS() {
 
 	.bb-grid line {
 		stroke: #DEDFE0;
-		stroke-width: 2px;
-		stroke-dasharray: 2 4;
+ 		stroke-dasharray: 8 4;
+  	stroke-width: 1px;
+  	shape-rendering: auto;
 	}
 
 	</style>
