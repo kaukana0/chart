@@ -202,7 +202,6 @@ function shadeColor(color, percent) {
 
 
 function createChart(context, type) {		// using billboard.js
-
 	if(!context.tooltipFn) {
 		document.head.insertAdjacentHTML("beforeend", tooltipCSS())
 	}
@@ -226,12 +225,14 @@ function createChart(context, type) {		// using billboard.js
 		},
 		onrendered: function() {
 			addLegendKeyboardNavigability(context.legendDOMElementId)
+			displayMissingDataInLegend(context.currentCols, context.uniquePrefix, context.legendDOMElementId, context.cacCallback)
 		},
 		grid: grid(),
 		axis: axis(context.categories, context.isRotated, context.id, context.labelEveryTick, context.xAxisLabelBetween, context.padding),
 		tooltip: context.tooltipFn ? context.tooltipFn(context) : tooltip(context),
 		onresized: function() {
 			if(context.onResized) {context.onResized()}
+			// TODO: don't misuse currentCols, use .cols for this (which doesnt exist in context yet...)
 			displayMissingDataInLegend(context.currentCols, context.uniquePrefix, context.legendDOMElementId, context.cacCallback)
 		},
 		point: {pattern:[]},
